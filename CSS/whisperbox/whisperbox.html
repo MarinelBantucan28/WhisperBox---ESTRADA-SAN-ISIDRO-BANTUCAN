@@ -1,0 +1,1341 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>WhisperBox - Anonymous Self-Expression</title> 
+    <style> 
+        /* Base Styles */ 
+        :root { 
+            --primary-color: #6c63ff; 
+            --secondary-color: #4a44b5; 
+            --light-color: #f8f9fa; 
+            --dark-color: #343a40; 
+            --success-color: #28a745; 
+            --danger-color: #dc3545; 
+            --warning-color: #ffc107; 
+            --info-color: #17a2b8; 
+            --gray-color: #6c757d; 
+            --light-gray: #e9ecef; 
+            --border-radius: 8px; 
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            --transition: all 0.3s ease; 
+        } 
+ 
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        } 
+ 
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: var(--dark-color); 
+            background-color: #fff; 
+        } 
+ 
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+        } 
+ 
+        section { 
+            padding: 80px 0; 
+        } 
+ 
+        h1, h2, h3, h4, h5, h6 { 
+            margin-bottom: 1rem; 
+            font-weight: 600; 
+            line-height: 1.2; 
+        } 
+ 
+        h2 { 
+            font-size: 2.5rem; 
+            text-align: center; 
+            margin-bottom: 1.5rem; 
+        } 
+ 
+        .section-subtitle { 
+            text-align: center; 
+            margin-bottom: 3rem; 
+            color: var(--gray-color); 
+            font-size: 1.1rem; 
+        } 
+ 
+        p { 
+            margin-bottom: 1rem; 
+        } 
+ 
+        a { 
+            text-decoration: none; 
+            color: var(--primary-color); 
+            transition: var(--transition); 
+        } 
+ 
+        a:hover { 
+            color: var(--secondary-color); 
+        } 
+ 
+        .btn { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: var(--border-radius); 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: 500; 
+            transition: var(--transition); 
+            text-align: center; 
+        } 
+ 
+        .btn:hover { 
+            background-color: var(--secondary-color); 
+            color: white; 
+            transform: translateY(-2px); 
+        } 
+ 
+        /* Navigation */ 
+        .navbar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background-color: rgba(255, 255, 255, 0.95); 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+            z-index: 1000; 
+            padding: 15px 0; 
+        } 
+ 
+        .nav-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        } 
+ 
+        .logo h1 { 
+            margin: 0; 
+            color: var(--primary-color); 
+            font-size: 1.8rem; 
+        } 
+ 
+        .nav-menu { 
+            display: flex; 
+            list-style: none; 
+        } 
+ 
+        .nav-menu li { 
+            margin-left: 30px; 
+        } 
+ 
+        .nav-menu a { 
+            color: var(--dark-color); 
+            font-weight: 500; 
+        } 
+ 
+        .nav-menu a:hover { 
+            color: var(--primary-color); 
+        } 
+ 
+        .hamburger { 
+            display: none; 
+            flex-direction: column; 
+            cursor: pointer; 
+        } 
+ 
+        .hamburger span { 
+            width: 25px; 
+            height: 3px; 
+            background-color: var(--dark-color); 
+            margin: 3px 0; 
+            transition: var(--transition); 
+        } 
+ 
+        /* Hero Section */ 
+        .hero { 
+            display: flex; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 100px 0 80px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); 
+        } 
+ 
+        .hero-content { 
+            flex: 1; 
+            padding: 0 40px; 
+        } 
+ 
+        .hero-content h1 { 
+            font-size: 3.5rem; 
+            margin-bottom: 1.5rem; 
+            color: var(--dark-color); 
+        } 
+ 
+        .hero-content p { 
+            font-size: 1.3rem; 
+            margin-bottom: 2.5rem; 
+            color: var(--gray-color); 
+        } 
+ 
+        .cta-button { 
+            display: inline-block; 
+            padding: 15px 30px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border-radius: var(--border-radius); 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            box-shadow: var(--box-shadow); 
+        } 
+ 
+        .cta-button:hover { 
+            background-color: var(--secondary-color); 
+            transform: translateY(-3px); 
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); 
+        } 
+ 
+        .hero-image { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 0 40px; 
+        } 
+ 
+        .floating-letter { 
+            width: 300px; 
+            height: 400px; 
+            background-color: white; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+            position: relative; 
+            transform: rotate(5deg); 
+            animation: float 6s ease-in-out infinite; 
+        } 
+ 
+        .floating-letter::before { 
+            content: ''; 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            right: 20px; 
+            height: 15px; 
+            background-color: var(--light-gray); 
+            border-radius: 5px; 
+        } 
+ 
+        .floating-letter::after { 
+            content: ''; 
+            position: absolute; 
+            top: 50px; 
+            left: 20px; 
+            right: 20px; 
+            height: 8px; 
+            background-color: var(--light-gray); 
+            border-radius: 3px; 
+        } 
+ 
+        @keyframes float { 
+            0% { 
+                transform: translateY(0) rotate(5deg); 
+            } 
+            50% { 
+                transform: translateY(-20px) rotate(5deg); 
+            } 
+            100% { 
+                transform: translateY(0) rotate(5deg); 
+            } 
+        } 
+ 
+        /* About Section */ 
+        .about { 
+            background-color: var(--light-color); 
+        } 
+ 
+        .about-content { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 50px; 
+        } 
+ 
+        .about-text { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            text-align: center; 
+            font-size: 1.1rem; 
+        } 
+ 
+        .about-features { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 30px; 
+        } 
+ 
+        .feature { 
+            text-align: center; 
+            padding: 30px 20px; 
+            background-color: white; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--box-shadow); 
+            transition: var(--transition); 
+        } 
+ 
+        .feature:hover { 
+            transform: translateY(-10px); 
+        } 
+ 
+        .feature-icon { 
+            font-size: 3rem; 
+            margin-bottom: 1rem; 
+        } 
+ 
+        .feature h3 { 
+            margin-bottom: 1rem; 
+            color: var(--dark-color); 
+        } 
+ 
+        /* Categories Section */ 
+        .category-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 25px; 
+        } 
+ 
+        .category-card { 
+            background-color: white; 
+            border-radius: var(--border-radius); 
+            padding: 30px 20px; 
+            text-align: center; 
+            box-shadow: var(--box-shadow); 
+            transition: var(--transition); 
+            cursor: pointer; 
+        } 
+ 
+        .category-card:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); 
+        } 
+ 
+        .category-icon { 
+            font-size: 3rem; 
+            margin-bottom: 1rem; 
+        } 
+ 
+        .category-card h3 { 
+            margin-bottom: 1rem; 
+            color: var(--dark-color); 
+        } 
+ 
+        .category-card p { 
+            color: var(--gray-color); 
+            font-size: 0.9rem; 
+        } 
+ 
+        /* Submit Section */ 
+        .submit { 
+            background-color: var(--light-color); 
+        } 
+ 
+        .letter-form { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background-color: white; 
+            padding: 40px; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--box-shadow); 
+        } 
+ 
+        .form-group { 
+            margin-bottom: 25px; 
+        } 
+ 
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            color: var(--dark-color); 
+        } 
+ 
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid var(--light-gray); 
+            border-radius: var(--border-radius); 
+            font-size: 1rem; 
+            transition: var(--transition); 
+        } 
+ 
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus { 
+            outline: none; 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2); 
+        } 
+ 
+        .form-group textarea { 
+            min-height: 200px; 
+            resize: vertical; 
+        } 
+ 
+        .char-count { 
+            text-align: right; 
+            font-size: 0.8rem; 
+            color: var(--gray-color); 
+            margin-top: 5px; 
+        } 
+ 
+        .image-upload-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        } 
+ 
+        .upload-button { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background-color: var(--light-gray); 
+            color: var(--dark-color); 
+            border-radius: var(--border-radius); 
+            cursor: pointer; 
+            transition: var(--transition); 
+        } 
+ 
+        .upload-button:hover { 
+            background-color: #dde1e6; 
+        } 
+ 
+        #image-upload { 
+            display: none; 
+        } 
+ 
+        #file-name { 
+            color: var(--gray-color); 
+            font-size: 0.9rem; 
+        } 
+ 
+        .image-preview { 
+            margin-top: 15px; 
+            display: none; 
+        } 
+ 
+        .image-preview img { 
+            max-width: 100%; 
+            max-height: 300px; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--box-shadow); 
+        } 
+ 
+        .checkbox-group { 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 10px; 
+        } 
+ 
+        .checkbox-group input { 
+            width: auto; 
+            margin-top: 5px; 
+        } 
+ 
+        .checkbox-group label { 
+            margin-bottom: 0; 
+        } 
+ 
+        .submit-button { 
+            width: 100%; 
+            padding: 15px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: var(--border-radius); 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        } 
+ 
+        .submit-button:hover { 
+            background-color: var(--secondary-color); 
+        } 
+ 
+        /* Read Letters Section */ 
+        .read-letters { 
+            background-color: white; 
+        } 
+ 
+        .filter-controls { 
+            display: flex; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            margin-bottom: 40px; 
+        } 
+ 
+        .filter-btn { 
+            padding: 8px 20px; 
+            background-color: var(--light-gray); 
+            color: var(--dark-color); 
+            border: none; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        } 
+ 
+        .filter-btn.active, 
+        .filter-btn:hover { 
+            background-color: var(--primary-color); 
+            color: white; 
+        } 
+ 
+        .letters-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 30px; 
+        } 
+ 
+        .letter-card { 
+            background-color: white; 
+            border-radius: var(--border-radius); 
+            padding: 25px; 
+            box-shadow: var(--box-shadow); 
+            transition: var(--transition); 
+            border: 1px solid var(--light-gray); 
+        } 
+ 
+        .letter-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); 
+        } 
+ 
+        .letter-category { 
+            display: inline-block; 
+            padding: 5px 12px; 
+            background-color: var(--light-gray); 
+            color: var(--dark-color); 
+            border-radius: 30px; 
+            font-size: 0.8rem; 
+            margin-bottom: 15px; 
+        } 
+ 
+        .letter-title { 
+            font-size: 1.3rem; 
+            margin-bottom: 15px; 
+            color: var(--dark-color); 
+        } 
+ 
+        .letter-content { 
+            color: var(--gray-color); 
+            margin-bottom: 20px; 
+            line-height: 1.6; 
+        } 
+ 
+        .letter-image { 
+            margin-top: 15px; 
+        } 
+ 
+        .letter-image img { 
+            width: 100%; 
+            border-radius: var(--border-radius); 
+        } 
+ 
+        .no-letters { 
+            grid-column: 1 / -1; 
+            text-align: center; 
+            padding: 60px 20px; 
+            color: var(--gray-color); 
+        } 
+ 
+        /* Footer */ 
+        .footer { 
+            background-color: var(--dark-color); 
+            color: white; 
+            padding: 60px 0 20px; 
+        } 
+ 
+        .footer-content { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 40px; 
+            margin-bottom: 40px; 
+        } 
+ 
+        .footer-logo h2 { 
+            color: white; 
+            text-align: left; 
+        } 
+ 
+        .footer-links h3, 
+        .footer-info h3 { 
+            color: white; 
+            margin-bottom: 20px; 
+            font-size: 1.2rem; 
+        } 
+ 
+        .footer-links ul { 
+            list-style: none; 
+        } 
+ 
+        .footer-links li { 
+            margin-bottom: 10px; 
+        } 
+ 
+        .footer-links a { 
+            color: #adb5bd; 
+        } 
+ 
+        .footer-links a:hover { 
+            color: white; 
+        } 
+ 
+        .footer-info p { 
+            color: #adb5bd; 
+            margin-bottom: 15px; 
+        } 
+ 
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 20px; 
+            border-top: 1px solid #495057; 
+            color: #adb5bd; 
+            font-size: 0.9rem; 
+        } 
+ 
+        /* Modal */ 
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.5); 
+            z-index: 2000; 
+            justify-content: center; 
+            align-items: center; 
+        } 
+ 
+        .modal-content { 
+            background-color: white; 
+            padding: 40px; 
+            border-radius: var(--border-radius); 
+            max-width: 500px; 
+            width: 90%; 
+            text-align: center; 
+            position: relative; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
+        } 
+ 
+        .close-modal { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--gray-color); 
+        } 
+ 
+        .modal-icon { 
+            font-size: 4rem; 
+            color: var(--success-color); 
+            margin-bottom: 20px; 
+        } 
+ 
+        .modal h2 { 
+            margin-bottom: 15px; 
+        } 
+ 
+        .modal p { 
+            margin-bottom: 25px; 
+            color: var(--gray-color); 
+        } 
+ 
+        .modal-button { 
+            padding: 12px 30px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: var(--border-radius); 
+            cursor: pointer; 
+            font-size: 1rem; 
+            transition: var(--transition); 
+        } 
+ 
+        .modal-button:hover { 
+            background-color: var(--secondary-color); 
+        } 
+ 
+        /* Responsive Design */ 
+        @media (max-width: 992px) { 
+            .hero { 
+                flex-direction: column; 
+                text-align: center; 
+                padding: 120px 0 60px; 
+            } 
+             
+            .hero-content { 
+                padding: 0 20px; 
+                margin-bottom: 50px; 
+            } 
+             
+            .hero-content h1 { 
+                font-size: 2.8rem; 
+            } 
+             
+            .hero-image { 
+                padding: 0 20px; 
+            } 
+             
+            .floating-letter { 
+                width: 250px; 
+                height: 350px; 
+            } 
+        } 
+ 
+        @media (max-width: 768px) { 
+            .nav-menu { 
+                position: fixed; 
+                top: 70px; 
+                left: -100%; 
+                width: 100%; 
+                flex-direction: column; 
+                background-color: white; 
+                text-align: center; 
+                transition: var(--transition); 
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1); 
+                padding: 20px 0; 
+            } 
+             
+            .nav-menu.active { 
+                left: 0; 
+            } 
+             
+            .nav-menu li { 
+                margin: 15px 0; 
+            } 
+             
+            .hamburger { 
+                display: flex; 
+            } 
+             
+            .hamburger.active span:nth-child(1) { 
+                transform: rotate(45deg) translate(5px, 5px); 
+            } 
+             
+            .hamburger.active span:nth-child(2) { 
+                opacity: 0; 
+            } 
+             
+            .hamburger.active span:nth-child(3) { 
+                transform: rotate(-45deg) translate(7px, -6px); 
+            } 
+             
+            h2 { 
+                font-size: 2rem; 
+            } 
+             
+            .hero-content h1 { 
+                font-size: 2.2rem; 
+            } 
+             
+            .letter-form { 
+                padding: 30px 20px; 
+            } 
+             
+            .image-upload-container { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 10px; 
+            } 
+        } 
+ 
+        @media (max-width: 576px) { 
+            section { 
+                padding: 60px 0; 
+            } 
+             
+            .hero-content h1 { 
+                font-size: 1.8rem; 
+            } 
+             
+            .hero-content p { 
+                font-size: 1.1rem; 
+            } 
+             
+            .category-grid { 
+                grid-template-columns: 1fr; 
+            } 
+             
+            .filter-controls { 
+                gap: 5px; 
+            } 
+             
+            .filter-btn { 
+                padding: 6px 15px; 
+                font-size: 0.9rem; 
+            } 
+        } 
+    </style> 
+</head> 
+<body> 
+    <!-- Navigation --> 
+    <nav class="navbar"> 
+        <div class="nav-container"> 
+            <div class="logo"> 
+                <h1>WhisperBox</h1> 
+            </div> 
+            <ul class="nav-menu"> 
+                <li><a href="#home">Home</a></li> 
+                <li><a href="#about">About</a></li> 
+                <li><a href="#categories">Categories</a></li> 
+                <li><a href="#submit">Submit</a></li> 
+                <li><a href="#read">Read Letters</a></li> 
+            </ul> 
+            <div class="hamburger"> 
+                <span></span> 
+                <span></span> 
+                <span></span> 
+            </div> 
+        </div> 
+    </nav> 
+ 
+    <!-- Hero Section --> 
+    <section id="home" class="hero"> 
+        <div class="hero-content"> 
+            <h1>Your Safe Space for Anonymous Expression</h1> 
+            <p>Share your thoughts, emotions, and experiences without revealing your 
+identity</p> 
+            <a href="#submit" class="cta-button">Share Your Story</a> 
+        </div> 
+        <div class="hero-image"> 
+            <div class="floating-letter"></div> 
+        </div> 
+    </section> 
+ 
+    <!-- About Section --> 
+    <section id="about" class="about"> 
+        <div class="container"> 
+            <h2>About WhisperBox</h2> 
+            <div class="about-content"> 
+                <div class="about-text"> 
+                    <p>WhisperBox is a secure and anonymous online platform designed for self
+expression. It gives individuals a safe space to share their thoughts, emotions, and 
+experiences without the need to reveal their identity.</p> 
+                    <p>We recognize that some people struggle to open up in person but still long for 
+connection, understanding, or simply someone to listen to. Here, every voice matters even 
+when it's anonymous.</p> 
+                </div> 
+                <div class="about-features"> 
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Completely Anonymous</h3>
+                    <p>No registration required. Your identity stays protected.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Safe Environment</h3>
+                    <p>Content filters and security measures protect all users.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📝</div>
+                    <h3>Categorized Expression</h3>
+                    <p>Share under categories that match your emotions.</p>
+                </div>
+                </div> 
+            </div> 
+        </div> 
+    </section> 
+ 
+    <!-- Categories Section --> 
+    <section id="categories" class="categories"> 
+        <div class="container"> 
+            <h2>Express Your Emotions</h2> 
+            <p class="section-subtitle">Choose a category that best fits what you're feeling</p> 
+            <div class="category-grid"> 
+                <div class="category-card" data-category="joy">
+                    <div class="category-icon">😊</div>
+                    <h3>Joy</h3>
+                    <p>Share moments of happiness, gratitude, and celebration</p>
+                </div>
+                <div class="category-card" data-category="sadness">
+                    <div class="category-icon">😢</div>
+                    <h3>Sadness</h3>
+                    <p>Express feelings of loss, grief, or melancholy</p>
+                </div>
+                <div class="category-card" data-category="anger">
+                    <div class="category-icon">😠</div>
+                    <h3>Anger</h3>
+                    <p>Release frustration, irritation, or righteous indignation</p>
+                </div>
+                <div class="category-card" data-category="exhaustion">
+                    <div class="category-icon">😴</div>
+                    <h3>Exhaustion</h3>
+                    <p>Share feelings of burnout, fatigue, or overwhelm</p>
+                </div>
+                <div class="category-card" data-category="reflection">
+                    <div class="category-icon">🤔</div>
+                    <h3>Reflection</h3>
+                    <p>Thoughts, insights, and contemplative moments</p>
+                </div>
+            </div> 
+        </div> 
+    </section> 
+ 
+    <!-- Submit Section --> 
+    <section id="submit" class="submit"> 
+        <div class="container"> 
+            <h2>Share Your Thoughts</h2> 
+            <p class="section-subtitle">Your identity remains completely anonymous</p> 
+             
+            <form id="letter-form" class="letter-form"> 
+                <div class="form-group"> 
+                    <label for="category">Emotion Category</label> 
+                    <select id="category" name="category" required> 
+                        <option value="">Select a category</option> 
+                        <option value="joy">Joy</option> 
+                        <option value="sadness">Sadness</option> 
+                        <option value="anger">Anger</option> 
+                        <option value="exhaustion">Exhaustion</option> 
+                        <option value="reflection">Reflection</option> 
+                    </select> 
+                </div> 
+                 
+                <div class="form-group"> 
+                    <label for="title">Title (Optional)</label> 
+                    <input type="text" id="title" name="title" placeholder="Give your letter a title..."> 
+                </div> 
+                 
+                <div class="form-group"> 
+                    <label for="content">Your Letter</label> 
+                    <textarea id="content" name="content" placeholder="Write your thoughts, 
+feelings, or experiences here..." required></textarea> 
+                    <div class="char-count"><span id="char-counter">0</span>/2000 
+characters</div> 
+                </div> 
+                 
+                <div class="form-group"> 
+                    <label for="image-upload">Add an Image (Optional)</label> 
+                    <div class="image-upload-container"> 
+                        <input type="file" id="image-upload" name="image" accept="image/*"> 
+                        <label for="image-upload" class="upload-button">Choose Image</label> 
+                        <span id="file-name">No file chosen</span> 
+                    </div> 
+                    <div id="image-preview" class="image-preview"></div> 
+                </div> 
+                 
+                <div class="form-group checkbox-group"> 
+                    <input type="checkbox" id="terms" name="terms" required> 
+                    <label for="terms">I understand that my submission will be anonymous and 
+publicly visible</label> 
+                </div> 
+                 
+                <button type="submit" class="submit-button">Share Anonymously</button> 
+            </form> 
+        </div> 
+    </section> 
+ 
+    <!-- Read Letters Section --> 
+    <section id="read" class="read-letters"> 
+        <div class="container"> 
+            <h2>Read Anonymous Letters</h2> 
+            <p class="section-subtitle">Connect with others through their shared 
+experiences</p> 
+             
+            <div class="filter-controls"> 
+                <button class="filter-btn active" data-filter="all">All</button> 
+                <button class="filter-btn" data-filter="joy">Joy</button> 
+                <button class="filter-btn" data-filter="sadness">Sadness</button> 
+                <button class="filter-btn" data-filter="anger">Anger</button> 
+                <button class="filter-btn" data-filter="exhaustion">Exhaustion</button> 
+                <button class="filter-btn" data-filter="reflection">Reflection</button> 
+            </div> 
+             
+            <div class="letters-grid"> 
+                <!-- Letters will be dynamically loaded here --> 
+                <div class="no-letters"> 
+                    <p>No letters to display yet. Be the first to share your thoughts!</p> 
+                </div> 
+            </div> 
+        </div> 
+    </section> 
+ 
+    <!-- Footer --> 
+    <footer class="footer"> 
+        <div class="container"> 
+            <div class="footer-content"> 
+                <div class="footer-logo"> 
+                    <h2>WhisperBox</h2> 
+                    <p>A safe space for anonymous self-expression</p> 
+                </div> 
+                <div class="footer-links"> 
+                    <h3>Quick Links</h3> 
+                    <ul> 
+                        <li><a href="#home">Home</a></li> 
+                        <li><a href="#about">About</a></li> 
+                        <li><a href="#submit">Submit a Letter</a></li> 
+                        <li><a href="#read">Read Letters</a></li> 
+                    </ul> 
+                </div> 
+                <div class="footer-info"> 
+                    <h3>Safety & Privacy</h3> 
+                    <p>All content is moderated to ensure a safe environment for everyone.</p> 
+                    <p>Your privacy is our priority - no personal information is collected.</p> 
+                </div> 
+            </div> 
+            <div class="footer-bottom"> 
+                <p>&copy; 2025 WhisperBox. All rights reserved.</p> 
+            </div> 
+        </div> 
+    </footer> 
+ 
+    <!-- Success Modal --> 
+    <div id="success-modal" class="modal"> 
+        <div class="modal-content"> 
+            <span class="close-modal">&times;</span> 
+            <div class="modal-icon">✓</div> 
+            <h2>Thank You for Sharing</h2> 
+            <p>Your letter has been submitted anonymously. Your voice matters.</p> 
+            <button class="modal-button">Continue</button> 
+        </div> 
+    </div> 
+ 
+    <script> 
+        document.addEventListener('DOMContentLoaded', function() { 
+            // Mobile Navigation Toggle 
+            const hamburger = document.querySelector('.hamburger'); 
+            const navMenu = document.querySelector('.nav-menu'); 
+             
+            if (hamburger) { 
+                hamburger.addEventListener('click', function() { 
+                    hamburger.classList.toggle('active'); 
+                    navMenu.classList.toggle('active'); 
+                }); 
+            } 
+             
+            // Close mobile menu when clicking on a link 
+            const navLinks = document.querySelectorAll('.nav-menu a'); 
+            navLinks.forEach(link => { 
+                link.addEventListener('click', function() { 
+                    hamburger.classList.remove('active'); 
+                    navMenu.classList.remove('active'); 
+                }); 
+            }); 
+             
+            // Character Counter for Letter Content 
+            const contentTextarea = document.getElementById('content'); 
+            const charCounter = document.getElementById('char-counter'); 
+             
+            if (contentTextarea && charCounter) { 
+                contentTextarea.addEventListener('input', function() { 
+                    const charCount = this.value.length; 
+                    charCounter.textContent = charCount; 
+                     
+                    if (charCount > 2000) { 
+                        charCounter.style.color = 'red'; 
+                    } else { 
+                        charCounter.style.color = ''; 
+                    } 
+                }); 
+            } 
+             
+            // Image Upload Preview 
+            const imageUpload = document.getElementById('image-upload'); 
+            const fileName = document.getElementById('file-name'); 
+            const imagePreview = document.getElementById('image-preview'); 
+             
+            if (imageUpload && fileName && imagePreview) { 
+                imageUpload.addEventListener('change', function() { 
+                    if (this.files && this.files[0]) { 
+                        fileName.textContent = this.files[0].name; 
+                         
+                        const reader = new FileReader(); 
+                         
+                        reader.onload = function(e) { 
+                            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`; 
+                            imagePreview.style.display = 'block'; 
+                        } 
+                         
+                        reader.readAsDataURL(this.files[0]); 
+                    } else { 
+                        fileName.textContent = 'No file chosen'; 
+                        imagePreview.style.display = 'none'; 
+                        imagePreview.innerHTML = ''; 
+                    } 
+                }); 
+            } 
+             
+            // Category Selection in Submit Form 
+            const categoryCards = document.querySelectorAll('.category-card'); 
+            const categorySelect = document.getElementById('category'); 
+             
+            categoryCards.forEach(card => { 
+                card.addEventListener('click', function() { 
+                    const category = this.getAttribute('data-category'); 
+                    if (categorySelect) { 
+                        categorySelect.value = category; 
+                         
+                        // Highlight selected category card 
+                        categoryCards.forEach(c => c.classList.remove('selected')); 
+                        this.classList.add('selected'); 
+                    } 
+                }); 
+            }); 
+             
+            // Letter Filtering 
+            const filterBtns = document.querySelectorAll('.filter-btn'); 
+            const lettersGrid = document.querySelector('.letters-grid'); 
+             
+            filterBtns.forEach(btn => { 
+                btn.addEventListener('click', function() { 
+                    const filter = this.getAttribute('data-filter'); 
+                     
+                    // Update active button 
+                    filterBtns.forEach(b => b.classList.remove('active')); 
+                    this.classList.add('active'); 
+                     
+                    // Filter letters (in a real app, this would fetch from a server) 
+                    filterLetters(filter); 
+                }); 
+            }); 
+             
+            // Letter Form Submission 
+            const letterForm = document.getElementById('letter-form'); 
+            const successModal = document.getElementById('success-modal'); 
+            const closeModal = document.querySelector('.close-modal'); 
+            const modalButton = document.querySelector('.modal-button'); 
+             
+            if (letterForm) { 
+                letterForm.addEventListener('submit', function(e) { 
+                    e.preventDefault(); 
+                     
+                    // Basic form validation 
+                    const category = document.getElementById('category').value; 
+                    const content = document.getElementById('content').value; 
+                    const terms = document.getElementById('terms').checked; 
+                     
+                    if (!category) { 
+                        alert('Please select an emotion category.'); 
+                        return; 
+                    } 
+                     
+                    if (!content.trim()) { 
+                        alert('Please write your letter.'); 
+                        return; 
+                    } 
+                     
+                    if (content.length > 2000) { 
+                        alert('Your letter exceeds the 2000 character limit.'); 
+                        return; 
+                    } 
+                     
+                    if (!terms) { 
+                        alert('Please agree to the terms before submitting.'); 
+                        return; 
+                    } 
+                     
+                    // Create a new letter object 
+                    const newLetter = { 
+                        id: Date.now(), // Simple ID generation 
+                        category: category, 
+                        title: document.getElementById('title').value, 
+                        content: content, 
+                        image: null, 
+                        date: new Date().toISOString().split('T')[0] 
+                    }; 
+                     
+                    // Handle image upload if present 
+                    const imageFile = document.getElementById('image-upload').files[0]; 
+                    if (imageFile) { 
+                        const reader = new FileReader(); 
+                        reader.onload = function(e) { 
+                            newLetter.image = e.target.result; 
+                            saveLetter(newLetter); 
+                        }; 
+                        reader.readAsDataURL(imageFile); 
+                    } else { 
+                        saveLetter(newLetter); 
+                    } 
+                }); 
+            } 
+             
+            // Function to save letter to localStorage and update display 
+            function saveLetter(letter) { 
+                // Get existing letters from localStorage 
+                let letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || []; 
+                 
+                // Add new letter 
+                letters.unshift(letter); // Add to beginning of array 
+                 
+                // Save back to localStorage 
+                localStorage.setItem('whisperbox-letters', JSON.stringify(letters)); 
+                 
+                // Show success modal 
+                if (successModal) { 
+                    successModal.style.display = 'flex'; 
+                } 
+                 
+                // Reset form 
+                letterForm.reset(); 
+                charCounter.textContent = '0'; 
+                fileName.textContent = 'No file chosen'; 
+                imagePreview.style.display = 'none'; 
+                imagePreview.innerHTML = ''; 
+                categoryCards.forEach(card => card.classList.remove('selected')); 
+                 
+                // Update letters display 
+                filterLetters('all'); 
+            } 
+             
+            // Modal Close Events 
+            if (closeModal) { 
+                closeModal.addEventListener('click', function() { 
+                    successModal.style.display = 'none'; 
+                }); 
+            } 
+             
+            if (modalButton) { 
+                modalButton.addEventListener('click', function() { 
+                    successModal.style.display = 'none'; 
+                }); 
+            } 
+             
+            // Close modal when clicking outside 
+            window.addEventListener('click', function(e) { 
+                if (e.target === successModal) { 
+                    successModal.style.display = 'none'; 
+                } 
+            }); 
+             
+            // Sample Data for Letters (in a real app, this would come from a server) 
+            const sampleLetters = [ 
+                { 
+                    id: 1, 
+                    category: 'joy', 
+                    title: 'A Small Victory', 
+                    content: 'Today I finally finished a project I\'ve been working on for months. It felt amazing to see it all come together. Sometimes the small wins are what keep us going.', 
+                    image: null, 
+                    date: '2023-10-15' 
+                }, 
+                { 
+                    id: 2, 
+                    category: 'sadness', 
+                    title: 'Missing You', 
+                    content: 'It\'s been a year since you left, and not a day goes by that I don\'t think about you. I wish I could tell you about everything that\'s happened.', 
+                    image: null, 
+                    date: '2023-10-12' 
+                }, 
+                { 
+                    id: 3, 
+                    category: 'reflection', 
+                    title: 'On Growing Older', 
+                    content: 'I turned 30 last week and have been thinking a lot about what it means to be an adult. I don\'t feel as grown up as I thought I would at this age.', 
+                    image: null, 
+                    date: '2023-10-08' 
+                }, 
+                { 
+                    id: 4, 
+                    category: 'exhaustion', 
+                    title: 'Just Tired', 
+                    content: 'Work has been overwhelming lately. I feel like I\'m running on empty and don\'t know how to recharge. Maybe I just need a good night\'s sleep.', 
+                    image: null, 
+                    date: '2023-10-05' 
+                }, 
+                { 
+                    id: 5, 
+                    category: 'anger', 
+                    title: 'Frustrated with Injustice', 
+                    content: 'I saw something unfair happen today and it made me so angry. Why do some people think they can treat others poorly without consequences?', 
+                    image: null, 
+                    date: '2023-10-01' 
+                }, 
+                { 
+                    id: 6, 
+                    category: 'joy', 
+                    title: 'Unexpected Kindness', 
+                    content: 'A stranger paid for my coffee today when I was having a rough morning. It completely turned my day around. Small acts of kindness really do matter.', 
+                    image: null, 
+                    date: '2023-09-28' 
+                } 
+            ]; 
+             
+            // Initialize with sample data if no data exists 
+            if (!localStorage.getItem('whisperbox-letters')) { 
+                localStorage.setItem('whisperbox-letters', JSON.stringify(sampleLetters)); 
+            } 
+             
+            // Function to filter and display letters 
+            function filterLetters(filter) { 
+                const allLetters = JSON.parse(localStorage.getItem('whisperbox-letters')) || []; 
+                const filteredLetters = filter === 'all' ? allLetters : allLetters.filter(letter => letter.category === filter); 
+                 
+                if (lettersGrid) { 
+                    if (filteredLetters.length === 0) { 
+                        lettersGrid.innerHTML = '<div class="no-letters"><p>No letters found in this category. Be the first to share!</p></div>'; 
+                    } else { 
+                        lettersGrid.innerHTML = ''; 
+                         
+                        filteredLetters.forEach(letter => { 
+                            const letterCard = document.createElement('div'); 
+                            letterCard.className = 'letter-card'; 
+                             
+                            const categoryNames = { 
+                                'joy': 'Joy', 
+                                'sadness': 'Sadness', 
+                                'anger': 'Anger', 
+                                'exhaustion': 'Exhaustion', 
+                                'reflection': 'Reflection' 
+                            }; 
+                             
+                            letterCard.innerHTML = ` 
+                                <div class="letter-category">${categoryNames[letter.category]}</div> 
+                                ${letter.title ? `<h3 class="letter-title">${letter.title}</h3>` : ''} 
+                                <div class="letter-content"> 
+                                    <p>${letter.content}</p> 
+                                </div> 
+                                ${letter.image ? ` 
+                                <div class="letter-image"> 
+                                    <img src="${letter.image}" alt="Letter image"> 
+                                </div> 
+                                ` : ''} 
+                                <div class="letter-date">${letter.date}</div> 
+                            `; 
+                             
+                            lettersGrid.appendChild(letterCard); 
+                        }); 
+                    } 
+                } 
+            } 
+             
+            // Initialize with all letters 
+            filterLetters('all'); 
+             
+            // Smooth scrolling for anchor links 
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => { 
+                anchor.addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                     
+                    const targetId = this.getAttribute('href'); 
+                    if (targetId === '#') return; 
+                     
+                    const targetElement = document.querySelector(targetId); 
+                    if (targetElement) { 
+                        const offsetTop = targetElement.offsetTop - 80; // Account for fixed header 
+                         
+                        window.scrollTo({ 
+                            top: offsetTop, 
+                            behavior: 'smooth' 
+                        }); 
+                    } 
+                }); 
+            }); 
+        }); 
+    </script> 
+</body> 
+</html> 
