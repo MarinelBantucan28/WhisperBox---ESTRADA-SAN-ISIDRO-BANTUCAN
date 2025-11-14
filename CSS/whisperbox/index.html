@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhisperBox - Anonymous Self-Expression</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>WhisperBox</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#submit">Submit</a></li>
+                <li><a href="#read">Read Letters</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Your Safe Space for Anonymous Expression</h1>
+            <p>Share your thoughts, emotions, and experiences without revealing your identity</p>
+            <a href="#submit" class="cta-button">Share Your Story</a>
+        </div>
+        <div class="hero-image">
+            <div class="floating-letter"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2>About WhisperBox</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>WhisperBox is a secure and anonymous online platform designed for self-expression. It gives individuals a safe space to share their thoughts, emotions, and experiences without the need to reveal their identity.</p>
+                    <p>We recognize that some people struggle to open up in person but still long for connection, understanding, or simply someone to listen to. Here, every voice matters even when it's anonymous.</p>
+                </div>
+                <div class="about-features">
+                    <div class="feature">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Completely Anonymous</h3>
+                        <p>No registration required. Your identity stays protected.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Safe Environment</h3>
+                        <p>Content filters and security measures protect all users.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📝</div>
+                        <h3>Categorized Expression</h3>
+                        <p>Share under categories that match your emotions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="categories">
+        <div class="container">
+            <h2>Express Your Emotions</h2>
+            <p class="section-subtitle">Choose a category that best fits what you're feeling</p>
+            <div class="category-grid">
+                <div class="category-card" data-category="joy">
+                    <div class="category-icon">😊</div>
+                    <h3>Joy</h3>
+                    <p>Share moments of happiness, gratitude, and celebration</p>
+                </div>
+                <div class="category-card" data-category="sadness">
+                    <div class="category-icon">😢</div>
+                    <h3>Sadness</h3>
+                    <p>Express feelings of loss, grief, or melancholy</p>
+                </div>
+                <div class="category-card" data-category="anger">
+                    <div class="category-icon">😠</div>
+                    <h3>Anger</h3>
+                    <p>Release frustration, irritation, or righteous indignation</p>
+                </div>
+                <div class="category-card" data-category="exhaustion">
+                    <div class="category-icon">😴</div>
+                    <h3>Exhaustion</h3>
+                    <p>Share feelings of burnout, fatigue, or overwhelm</p>
+                </div>
+                <div class="category-card" data-category="reflection">
+                    <div class="category-icon">🤔</div>
+                    <h3>Reflection</h3>
+                    <p>Thoughts, insights, and contemplative moments</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Submit Section -->
+    <section id="submit" class="submit">
+        <div class="container">
+            <h2>Share Your Thoughts</h2>
+            <p class="section-subtitle">Your identity remains completely anonymous</p>
+            
+            <form id="letter-form" class="letter-form">
+                <div class="form-group">
+                    <label for="category">Emotion Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="joy">Joy</option>
+                        <option value="sadness">Sadness</option>
+                        <option value="anger">Anger</option>
+                        <option value="exhaustion">Exhaustion</option>
+                        <option value="reflection">Reflection</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">Title (Optional)</label>
+                    <input type="text" id="title" name="title" placeholder="Give your letter a title...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Your Letter</label>
+                    <textarea id="content" name="content" placeholder="Write your thoughts, feelings, or experiences here..." required></textarea>
+                    <div class="char-count"><span id="char-counter">0</span>/2000 Characters</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image-upload">Add an Image (Optional)</label>
+                    <div class="image-upload-container">
+                        <input type="file" id="image-upload" name="image" accept="image/*">
+                        <label for="image-upload" class="upload-button">Choose Image</label>
+                        <span id="file-name">No file chosen</span>
+                    </div>
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I understand that my submission will be anonymous and publicly visible</label>
+                </div>
+                
+                <button type="submit" class="submit-button">Share Anonymously</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Read Letters Section -->
+    <section id="read" class="read-letters">
+        <div class="container">
+            <h2>Read Anonymous Letters</h2>
+            <p class="section-subtitle">Connect with others through their shared experiences</p>
+            
+            <div class="filter-controls">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="joy">Joy</button>
+                <button class="filter-btn" data-filter="sadness">Sadness</button>
+                <button class="filter-btn" data-filter="anger">Anger</button>
+                <button class="filter-btn" data-filter="exhaustion">Exhaustion</button>
+                <button class="filter-btn" data-filter="reflection">Reflection</button>
+            </div>
+            
+            <div class="letters-grid">
+                <!-- Letters will be dynamically loaded here -->
+                <div class="no-letters">
+                    <p>No letters to display yet. Be the first to share your thoughts!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>WhisperBox</h2>
+                    <p>A safe space for anonymous self-expression</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#submit">Submit a Letter</a></li>
+                        <li><a href="#read">Read Letters</a></li>
+                    </ul>
+                </div>
+                <div class="footer-info">
+                    <h3>Safety & Privacy</h3>
+                    <p>All content is moderated to ensure a safe environment for everyone.</p>
+                    <p>Your privacy is our priority - no personal information is collected.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 WhisperBox. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-icon">✓</div>
+            <h2>Thank You for Sharing</h2>
+            <p>Your letter has been submitted anonymously. Your voice matters.</p>
+            <button class="modal-button">Continue</button>
+        </div>
+    </div>
+
+    
+</body>
+</html>
