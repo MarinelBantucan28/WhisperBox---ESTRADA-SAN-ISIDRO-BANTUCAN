@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('WhisperBox initialized!');
+
     // Mobile Navigation Toggle
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
@@ -51,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.onload = function(e) {
                     imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                     imagePreview.style.display = 'block';
-                }
+                };
                 
                 reader.readAsDataURL(this.files[0]);
             } else {
@@ -81,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Letter Filtering
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const lettersGrid = document.querySelector('.letters-grid');
     
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             
-            // Filter letters (in a real app, this would fetch from a server)
+            // Filter letters
             filterLetters(filter);
         });
     });
@@ -182,6 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update letters display
         filterLetters('all');
+        // Also update My Letters section
+        loadMyLetters();
     }
     
     // Modal Close Events
@@ -204,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Sample Data for Letters (in a real app, this would come from a server)
+    // Sample Data for Letters
     const sampleLetters = [
         {
             id: 1,
@@ -261,11 +264,12 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('whisperbox-letters', JSON.stringify(sampleLetters));
     }
 
-    // Function to filter and display letters
+    // Function to filter and display letters in Read section
     function filterLetters(filter) {
         const allLetters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
         const filteredLetters = filter === 'all' ? allLetters : allLetters.filter(letter => letter.category === filter);
         
+        const lettersGrid = document.querySelector('.letters-grid');
         if (lettersGrid) {
             if (filteredLetters.length === 0) {
                 lettersGrid.innerHTML = '<div class="no-letters"><p>No letters found in this category. Be the first to share!</p></div>';
@@ -275,6 +279,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 filteredLetters.forEach(letter => {
                     const letterCard = document.createElement('div');
                     letterCard.className = 'letter-card';
+                    letterCard.setAttribute('data-letter-id', letter.id);
+                    letterCard.setAttribute('data-category', letter.category);
                     
                     const categoryNames = {
                         'joy': 'Joy',
@@ -284,31 +290,492 @@ document.addEventListener('DOMContentLoaded', function() {
                         'reflection': 'Reflection'
                     };
                     
-                    // In the filterLetters function, update the letterCard creation:
-letterCard.innerHTML = `
-    <div class="letter-category">${categoryNames[letter.category]}</div>
-    ${letter.title ? `<h3 class="letter-title">${letter.title}</h3>` : ''}
-    <div class="letter-content">
-        <p>${letter.content}</p>
-    </div>
-    ${letter.image ? `
-    <div class="letter-image">
-        <img src="${letter.image}" alt="Letter image">
-    </div>
-    ` : ''}
-    <div class="letter-date">${letter.date}</div>
-`;
-// Add this line after setting innerHTML:
-letterCard.setAttribute('data-category', letter.category);
+                    letterCard.innerHTML = `
+                        <div class="letter-category">${categoryNames[letter.category]}</div>
+                        ${letter.title ? `<h3 class="letter-title">${letter.title}</h3>` : ''}
+                        <div class="letter-content">
+                            <p>${letter.content}</p>
+                        </div>
+                        ${letter.image ? `
+                        <div class="letter-image">
+                            <img src="${letter.image}" alt="Letter image">
+                        </div>
+                        ` : ''}
+                        <div class="letter-date">${letter.date}</div>
+                    `;
                     
                     lettersGrid.appendChild(letterCard);
                 });
             }
         }
     }
+
+    // My Letters Management System
+    function initMyLettersSection() {
+        setupMyLettersEvents();
+        loadMyLetters();
+    }
+
+    function setupMyLettersEvents() {
+        // Bulk select button
+        const bulkSelectBtn = document.querySelector('.bulk-select-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        const bulkDeleteBtn = document.querySelector('.bulk-delete-selected');
+        
+        if (bulkSelectBtn) {
+            bulkSelectBtn.addEventListener('click', toggleBulkSelection);
+        }
+        
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', confirmClearAllLetters);
+        }
+        
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', confirmBulkDelete);
+        }
+        
+        // Update clear all button state
+        updateClearAllButton();
+    }
+
+    function loadMyLetters() {
+        const myLetters = getMyLetters();
+        displayMyLetters(myLetters);
+        updateLettersCount(myLetters.length);
+        updateClearAllButton();
+    }
+
+    function getMyLetters() {
+        return JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+    }
+
+    function displayMyLetters(letters) {
+        const myLettersGrid = document.querySelector('.my-letters-grid');
+        if (!myLettersGrid) return;
+        
+        if (letters.length === 0) {
+            myLettersGrid.innerHTML = `
+                <div class="no-letters-message">
+                    <h3>No letters yet</h3>
+                    <p>You haven't submitted any letters yet. <a href="#submit">Share your first thought</a> to get started!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const categoryNames = {
+            'joy': 'Joy',
+            'sadness': 'Sadness',
+            'anger': 'Anger',
+            'exhaustion': 'Exhaustion',
+            'reflection': 'Reflection'
+        };
+        
+        const categoryColors = {
+            'joy': '#28a745',
+            'sadness': '#17a2b8',
+            'anger': '#dc3545',
+            'exhaustion': '#ffc107',
+            'reflection': '#6c63ff'
+        };
+        
+        myLettersGrid.innerHTML = '';
+        
+        letters.forEach(letter => {
+            const letterCard = document.createElement('div');
+            letterCard.className = 'my-letter-card';
+            letterCard.setAttribute('data-letter-id', letter.id);
+            
+            letterCard.innerHTML = `
+                <input type="checkbox" class="letter-checkbox" data-letter-id="${letter.id}">
+                <div class="letter-header">
+                    <div class="letter-meta">
+                        <div class="letter-identifier">ID: ${letter.id}</div>
+                        <div class="letter-category" style="border-left-color: ${categoryColors[letter.category]}">
+                            ${categoryNames[letter.category]}
+                        </div>
+                        ${letter.title ? `<h3 class="letter-title">${letter.title}</h3>` : ''}
+                    </div>
+                    <div class="letter-actions">
+                        <button class="edit-btn" data-letter-id="${letter.id}">
+                            ✏️ Edit
+                        </button>
+                        <button class="delete-btn" data-letter-id="${letter.id}">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="letter-content">
+                    <p>${letter.content}</p>
+                </div>
+                ${letter.image ? `
+                <div class="letter-image">
+                    <img src="${letter.image}" alt="Letter image">
+                </div>
+                ` : ''}
+                <div class="letter-date">Submitted on ${formatDate(letter.date)}</div>
+            `;
+            
+            myLettersGrid.appendChild(letterCard);
+        });
+        
+        // Add event listeners
+        addMyLettersEventListeners();
+    }
+
+    function addMyLettersEventListeners() {
+        // Delete buttons
+        const deleteButtons = document.querySelectorAll('.my-letter-card .delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const letterId = this.getAttribute('data-letter-id');
+                showDeleteModal(letterId, 'my-letters');
+            });
+        });
+        
+        // Edit buttons
+        const editButtons = document.querySelectorAll('.my-letter-card .edit-btn');
+        editButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const letterId = this.getAttribute('data-letter-id');
+                editLetter(letterId);
+            });
+        });
+        
+        // Checkboxes
+        const checkboxes = document.querySelectorAll('.letter-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActionsPanel);
+        });
+        
+        // Letter card clicks (for selection)
+        const letterCards = document.querySelectorAll('.my-letter-card');
+        letterCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.matches('.delete-btn, .edit-btn, .letter-checkbox')) {
+                    const checkbox = this.querySelector('.letter-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    updateBulkActionsPanel();
+                }
+            });
+        });
+    }
+
+    function toggleBulkSelection() {
+        const checkboxes = document.querySelectorAll('.letter-checkbox');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+        
+        updateBulkActionsPanel();
+    }
+
+    function updateBulkActionsPanel() {
+        const bulkActionsPanel = document.querySelector('.bulk-actions-panel');
+        const selectedCount = document.querySelector('.selected-count');
+        const checkboxes = document.querySelectorAll('.letter-checkbox:checked');
+        
+        if (checkboxes.length > 0) {
+            bulkActionsPanel.classList.add('show');
+            selectedCount.textContent = `${checkboxes.length} letter${checkboxes.length > 1 ? 's' : ''} selected`;
+        } else {
+            bulkActionsPanel.classList.remove('show');
+        }
+        
+        // Update card selection styles
+        const letterCards = document.querySelectorAll('.my-letter-card');
+        letterCards.forEach(card => {
+            const checkbox = card.querySelector('.letter-checkbox');
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+    }
+
+    function confirmBulkDelete() {
+        const selectedCheckboxes = document.querySelectorAll('.letter-checkbox:checked');
+        if (selectedCheckboxes.length === 0) return;
+        
+        const bulkDeleteModal = document.getElementById('bulk-delete-modal');
+        const message = bulkDeleteModal.querySelector('#bulk-delete-message');
+        
+        message.textContent = `Are you sure you want to delete ${selectedCheckboxes.length} letter${selectedCheckboxes.length > 1 ? 's' : ''}? This action cannot be undone.`;
+        bulkDeleteModal.style.display = 'flex';
+        bulkDeleteModal.setAttribute('data-delete-type', 'bulk');
+    }
+
+    function confirmClearAllLetters() {
+        const myLetters = getMyLetters();
+        if (myLetters.length === 0) return;
+        
+        const bulkDeleteModal = document.getElementById('bulk-delete-modal');
+        const message = bulkDeleteModal.querySelector('#bulk-delete-message');
+        
+        message.textContent = `Are you sure you want to delete all ${myLetters.length} of your letters? This action cannot be undone.`;
+        bulkDeleteModal.style.display = 'flex';
+        bulkDeleteModal.setAttribute('data-delete-type', 'all');
+    }
+
+    function deleteBulkLetters() {
+        const selectedCheckboxes = document.querySelectorAll('.letter-checkbox:checked');
+        const letterIds = Array.from(selectedCheckboxes).map(checkbox => 
+            parseInt(checkbox.getAttribute('data-letter-id'))
+        );
+        
+        let letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+        letters = letters.filter(letter => !letterIds.includes(letter.id));
+        localStorage.setItem('whisperbox-letters', JSON.stringify(letters));
+        
+        showToast(`${letterIds.length} letter${letterIds.length > 1 ? 's' : ''} deleted successfully`);
+        loadMyLetters();
+    }
+
+    function deleteAllMyLetters() {
+        localStorage.removeItem('whisperbox-letters');
+        showToast('All your letters have been deleted');
+        loadMyLetters();
+    }
+
+    function updateLettersCount(count) {
+        const countElement = document.getElementById('my-letters-count');
+        if (countElement) {
+            countElement.textContent = `${count} letter${count !== 1 ? 's' : ''}`;
+        }
+    }
+
+    function updateClearAllButton() {
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        const myLetters = getMyLetters();
+        
+        if (clearAllBtn) {
+            clearAllBtn.disabled = myLetters.length === 0;
+        }
+    }
+
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    function editLetter(letterId) {
+        // Basic edit functionality
+        const letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+        const letter = letters.find(l => l.id === letterId);
+        
+        if (letter) {
+            document.querySelector('#submit').scrollIntoView({ behavior: 'smooth' });
+            showToast('Edit functionality coming soon! For now, please create a new letter.');
+        }
+    }
+
+    function showDeleteModal(letterId, source = 'read') {
+        const deleteModal = document.getElementById('delete-modal');
+        if (!deleteModal) {
+            console.error('Delete modal not found!');
+            return;
+        }
+        deleteModal.setAttribute('data-letter-id', letterId);
+        deleteModal.setAttribute('data-source', source);
+        deleteModal.style.display = 'flex';
+    }
+
+    function deleteConfirmedLetter() {
+    const deleteModal = document.getElementById('delete-modal');
+    const letterId = parseInt(deleteModal.getAttribute('data-letter-id'));
+    const source = deleteModal.getAttribute('data-source');
     
-    // Initialize with all letters
+    deleteLetter(letterId);
+    deleteModal.style.display = 'none';
+    
+    // Refresh both sections to ensure consistency
+    refreshAllSections();
+}
+
+function deleteBulkLetters() {
+    const selectedCheckboxes = document.querySelectorAll('.letter-checkbox:checked');
+    const letterIds = Array.from(selectedCheckboxes).map(checkbox => 
+        parseInt(checkbox.getAttribute('data-letter-id'))
+    );
+    
+    let letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+    letters = letters.filter(letter => !letterIds.includes(letter.id));
+    localStorage.setItem('whisperbox-letters', JSON.stringify(letters));
+    
+    showToast(`${letterIds.length} letter${letterIds.length > 1 ? 's' : ''} deleted successfully`);
+    
+    // Refresh both sections
+    refreshAllSections();
+}
+
+function deleteAllMyLetters() {
+    localStorage.removeItem('whisperbox-letters');
+    showToast('All your letters have been deleted');
+    
+    // Refresh both sections
+    refreshAllSections();
+}
+
+// New function to refresh both sections
+function refreshAllSections() {
+    // Refresh My Letters section
+    loadMyLetters();
+    
+    // Refresh Read Letters section with current filter
+    const currentFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
+    filterLetters(currentFilter);
+}
+
+// Also update the saveLetter function to refresh both sections
+function saveLetter(letter) {
+    // Get existing letters from localStorage
+    let letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+    
+    // Add new letter
+    letters.unshift(letter); // Add to beginning of array
+    
+    // Save back to localStorage
+    localStorage.setItem('whisperbox-letters', JSON.stringify(letters));
+    
+    // Show success modal
+    if (successModal) {
+        successModal.style.display = 'flex';
+    }
+
+    // Reset form
+    letterForm.reset();
+    charCounter.textContent = '0';
+    fileName.textContent = 'No file chosen';
+    imagePreview.style.display = 'none';
+    imagePreview.innerHTML = '';
+    categoryCards.forEach(card => card.classList.remove('selected'));
+    
+    // Refresh both sections
+    refreshAllSections();
+}
+
+    function deleteLetter(letterId) {
+        let letters = JSON.parse(localStorage.getItem('whisperbox-letters')) || [];
+        letters = letters.filter(letter => letter.id !== letterId);
+        localStorage.setItem('whisperbox-letters', JSON.stringify(letters));
+        
+        showToast('Letter deleted successfully');
+    }
+
+    // Toast notifications
+    function showToast(message) {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast');
+        existingToasts.forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Setup delete modals
+    function setupDeleteModals() {
+        const deleteModal = document.getElementById('delete-modal');
+        const bulkDeleteModal = document.getElementById('bulk-delete-modal');
+        
+        if (deleteModal) {
+            const cancelBtn = deleteModal.querySelector('.cancel-btn');
+            const confirmBtn = deleteModal.querySelector('.confirm-delete-btn');
+            
+            cancelBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+            
+            confirmBtn.addEventListener('click', deleteConfirmedLetter);
+        }
+        
+        if (bulkDeleteModal) {
+            const bulkCancelBtn = bulkDeleteModal.querySelector('.bulk-cancel');
+            const bulkConfirmBtn = bulkDeleteModal.querySelector('.bulk-confirm');
+            
+            bulkCancelBtn.addEventListener('click', () => {
+                bulkDeleteModal.style.display = 'none';
+            });
+            
+            bulkConfirmBtn.addEventListener('click', function() {
+                const deleteType = bulkDeleteModal.getAttribute('data-delete-type');
+                if (deleteType === 'bulk') {
+                    deleteBulkLetters();
+                } else if (deleteType === 'all') {
+                    deleteAllMyLetters();
+                }
+                bulkDeleteModal.style.display = 'none';
+            });
+        }
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+            if (e.target === bulkDeleteModal) {
+                bulkDeleteModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Add toast animations to CSS
+    const toastStyles = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    `;
+    
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = toastStyles;
+    document.head.appendChild(styleSheet);
+
+    // Initialize everything
+setupDeleteModals();
+initMyLettersSection();
+filterLetters('all'); // This will load the Read Letters section
+
+// Make sure both sections are in sync on page load
+function initializeBothSections() {
+    loadMyLetters();
     filterLetters('all');
+}
+
+// Call this after DOM is fully loaded
+initializeBothSections();
     
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -320,7 +787,7 @@ letterCard.setAttribute('data-category', letter.category);
             
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                const offsetTop = targetElement.offsetTop - 80; // Account for fixed header
+                const offsetTop = targetElement.offsetTop - 80;
                 
                 window.scrollTo({
                     top: offsetTop,
