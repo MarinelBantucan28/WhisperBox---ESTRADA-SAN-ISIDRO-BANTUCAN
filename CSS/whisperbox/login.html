@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhisperBox - Share What You Can't Say Out Loud</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: 
+                linear-gradient(rgba(245, 247, 250, 0.85), rgba(228, 237, 245, 0.9)),
+                url('img/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin: 20px auto;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            background: 
+                linear-gradient(rgba(106, 137, 204, 0.9), rgba(74, 105, 189, 0.9)),
+                url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1, .header p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .options-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .option-card {
+            flex: 1;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.7);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+            position: relative;
+            backdrop-filter: blur(3px);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            background: rgba(248, 250, 252, 0.95);
+        }
+
+        .option-card.guest {
+            border-top: 4px solid #4a69bd;
+        }
+
+        .option-card.register {
+            border-top: 4px solid #38a169;
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .option-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        .guest .option-icon {
+            background-color: #e3f2fd;
+            color: #4a69bd;
+        }
+
+        .register .option-icon {
+            background-color: #e6fffa;
+            color: #38a169;
+        }
+
+        .option-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .guest .option-button {
+            background-color: #4a69bd;
+            color: white;
+        }
+
+        .guest .option-button:hover {
+            background-color: #3c5aa8;
+        }
+
+        .register .option-button {
+            background-color: #38a169;
+            color: white;
+        }
+
+        .register .option-button:hover {
+            background-color: #2d8559;
+        }
+
+        .option-intro {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .option-intro p {
+            margin-bottom: 20px;
+            color: #718096;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: #718096;
+        }
+
+        .divider:before, .divider:after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+        }
+
+        .divider-text {
+            padding: 0 15px;
+            font-size: 1rem;
+        }
+
+        /* Pop-up Message Styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2029&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .close-popup {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .close-popup:hover {
+            background-color: #f1f5f9;
+        }
+
+        .details-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .pros-list, .limitations-list {
+            list-style-type: none;
+            margin-bottom: 15px;
+        }
+
+        .pros-list li, .limitations-list li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        .pros-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #38a169;
+            font-weight: bold;
+        }
+
+        .limitations-list li:before {
+            content: "!";
+            position: absolute;
+            left: 0;
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        .promise-box {
+            background-color: rgba(235, 248, 255, 0.8);
+            border-left: 4px solid #3182ce;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            backdrop-filter: blur(2px);
+        }
+
+        .promise-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c5282;
+        }
+
+        .popup-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .proceed-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .guest-popup .proceed-button {
+            background-color: #4a69bd;
+            color: white;
+        }
+
+        .guest-popup .proceed-button:hover {
+            background-color: #3c5aa8;
+        }
+
+        .register-popup .proceed-button {
+            background-color: #38a169;
+            color: white;
+        }
+
+        .register-popup .proceed-button:hover {
+            background-color: #2d8559;
+        }
+
+        /* Registration Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2029&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.1);
+            background-color: white;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .checkbox {
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #38a169;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #2d8559;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .login-link a {
+            color: #4a69bd;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WhisperBox</h1>
+            <p>Share What You Can't Say Out Loud</p>
+        </div>
+        
+        <div class="content">
+            <div class="description">
+                A safe space for anonymous expression. Choose your path below to begin.
+            </div>
+            
+            <div class="options-container">
+                <!-- Guest Option -->
+                <div class="option-card guest">
+                    <div class="option-header">
+                        <div class="option-icon">👤</div>
+                        <h2 class="option-title">Continue as Guest</h2>
+                    </div>
+                    
+                    <div class="option-intro">
+                        <p>Share your thoughts instantly without creating an account. Perfect for one-time expressions.</p>
+                        <button class="option-button" id="guest-button">Continue as Guest</button>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="divider">
+                    <span class="divider-text">Or</span>
+                </div>
+                
+                <!-- Registration Option -->
+                <div class="option-card register">
+                    <div class="option-header">
+                        <div class="option-icon">🆔</div>
+                        <h2 class="option-title">Create Your Anonymous Persona</h2>
+                    </div>
+                    
+                    <div class="option-intro">
+                        <p>Build a persistent anonymous identity with full control over your content and enhanced features.</p>
+                        <button class="option-button" id="register-button">Create a Persona</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Guest Pop-up Message -->
+    <div class="popup-overlay guest-popup" id="guest-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 class="popup-title">Continue as Guest</h2>
+                <button class="close-popup" id="close-guest-popup">&times;</button>
+            </div>
+            
+            <div class="popup-body">
+                <h3 class="details-title">What this means:</h3>
+                <ul class="pros-list">
+                    <li><strong>Instant Access:</strong> Start sharing immediately</li>
+                    <li><strong>Maximum Privacy:</strong> No account or email required</li>
+                    <li><strong>Simple Sharing:</strong> Write and post letters to the public feed</li>
+                </ul>
+                
+                <h3 class="details-title">Important Limitations:</h3>
+                <ul class="limitations-list">
+                    <li>To edit or delete letters, you <strong>must save the unique secret link</strong> provided after posting</li>
+                    <li>If you lose the link, you lose access to your letters permanently</li>
+                    <li>Guest posts are marked with a "Guest" tag</li>
+                    <li>Guest content may be prioritized for moderation review</li>
+                </ul>
+            </div>
+            
+            <div class="popup-footer">
+                <button class="proceed-button" id="guest-proceed">Continue Anonymously</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registration Pop-up Message -->
+    <div class="popup-overlay register-popup" id="register-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 class="popup-title">Create Your Anonymous Persona</h2>
+                <button class="close-popup" id="close-register-popup">&times;</button>
+            </div>
+            
+            <div class="popup-body">
+                <h3 class="details-title">What you'll get:</h3>
+                <ul class="pros-list">
+                    <li><strong>Full Control:</strong> View, edit, and manage all your letters</li>
+                    <li><strong>Cross-Device Access:</strong> Sign in on any device</li>
+                    <li><strong>Enhanced Features:</strong> Bookmark favorites and receive community support</li>
+                </ul>
+                
+                <div class="promise-box">
+                    <h3 class="promise-title">Our Promise:</h3>
+                    <p>Your identity is still <strong>completely anonymous to the public</strong>. We never share your email, and you're building a persistent, yet private, voice within our community.</p>
+                </div>
+            </div>
+            
+            <div class="popup-footer">
+                <button class="proceed-button" id="register-proceed">Create a Persona</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registration Modal -->
+    <div class="modal" id="registration-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Your Anonymous Persona</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="registration-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Your private display name (visible only to you)" required>
+                    <small style="color: #718096; font-size: 0.8rem;">Public posts will still show as "Anonymous"</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="For login and security only" required>
+                    <small style="color: #718096; font-size: 0.8rem;">We will never display your email publicly</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Create a secure password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" class="checkbox" required>
+                    <label for="terms" class="checkbox-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                
+                <button type="submit" class="submit-button">Create My Persona</button>
+                
+                <div class="login-link">
+                    Already have a persona? <a href="#" id="login-link">Log In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>WhisperBox &copy; 2023 - A Safe Space for Anonymous Expression</p>
+    </div>
+
+    <script>
+        // Pop-up functionality
+        const guestButton = document.getElementById('guest-button');
+        const registerButton = document.getElementById('register-button');
+        const guestPopup = document.getElementById('guest-popup');
+        const registerPopup = document.getElementById('register-popup');
+        const closeGuestPopup = document.getElementById('close-guest-popup');
+        const closeRegisterPopup = document.getElementById('close-register-popup');
+        const guestProceed = document.getElementById('guest-proceed');
+        const registerProceed = document.getElementById('register-proceed');
+        
+        // Open pop-ups
+        guestButton.addEventListener('click', () => {
+            guestPopup.style.display = 'flex';
+        });
+        
+        registerButton.addEventListener('click', () => {
+            registerPopup.style.display = 'flex';
+        });
+        
+        // Close pop-ups
+        closeGuestPopup.addEventListener('click', () => {
+            guestPopup.style.display = 'none';
+        });
+        
+        closeRegisterPopup.addEventListener('click', () => {
+            registerPopup.style.display = 'none';
+        });
+        
+        // Proceed buttons
+        guestProceed.addEventListener('click', () => {
+            alert('Guest access would be granted here. In a real app, this would redirect to the posting interface.');
+            guestPopup.style.display = 'none';
+        });
+        
+        registerProceed.addEventListener('click', () => {
+            registerPopup.style.display = 'none';
+            modal.style.display = 'flex';
+        });
+        
+        // Close pop-ups when clicking outside the content
+        window.addEventListener('click', (e) => {
+            if (e.target === guestPopup) {
+                guestPopup.style.display = 'none';
+            }
+            if (e.target === registerPopup) {
+                registerPopup.style.display = 'none';
+            }
+        });
+        
+        // Modal functionality
+        const openModalBtn = document.getElementById('open-registration-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modal = document.getElementById('registration-modal');
+        const loginLink = document.getElementById('login-link');
+        
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        
+        loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Login functionality would be implemented here');
+        });
+        
+        // Close modal when clicking outside the content
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Form submission
+        document.getElementById('registration-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In a real application, you would handle form submission here
+            alert('Registration would be processed here. In a real app, this would connect to your backend.');
+            modal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
