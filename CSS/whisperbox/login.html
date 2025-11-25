@@ -218,8 +218,30 @@
         }
 
         .option-card:hover .option-intro p {
-    color: #333; /* Or any color you prefer */
-}
+            color: #333;
+        }
+
+        .login-link-option {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+
+        .option-card:hover .login-link-option {
+            color: #718096;
+        }
+
+        .login-link-option a {
+            color: #c68122;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .login-link-option a:hover {
+            text-decoration: underline;
+        }
         
         .divider {
             display: flex;
@@ -263,11 +285,6 @@
             position: relative;
             max-height: 80vh;
             overflow-y: auto;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
-                url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2029&q=80');
-            background-size: cover;
-            background-position: center;
         }
 
         .popup-header {
@@ -384,7 +401,7 @@
             background-color: #e09731;
         }
 
-        /* Registration Modal Styles */
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -405,11 +422,6 @@
             max-width: 500px;
             padding: 30px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
-                url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2029&q=80');
-            background-size: cover;
-            background-position: center;
         }
 
         .modal-header {
@@ -494,17 +506,22 @@
             background-color: #e09731;
         }
 
-        .login-link {
+        .auth-switch {
             text-align: center;
             margin-top: 20px;
             font-size: 0.9rem;
             color: #718096;
         }
 
-        .login-link a {
+        .auth-switch a {
             color: #4a69bd;
             text-decoration: none;
             font-weight: 500;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
         }
 
         .footer {
@@ -576,6 +593,9 @@
                     <div class="option-intro">
                         <p>Build a lasting, anonymous identity to develop your thoughts over time. Curate your own anonymous journal.</p>
                         <button class="option-button" id="register-button">Create Your Persona</button>
+                        <div class="login-link-option">
+                            Already have a persona? <a href="#" id="login-from-option">Log in here</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -646,7 +666,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Create Your Anonymous Persona</h2>
-                <button class="close-modal" id="close-modal">&times;</button>
+                <button class="close-modal" id="close-registration-modal">&times;</button>
             </div>
             
             <form id="registration-form">
@@ -667,6 +687,11 @@
                     <input type="password" id="password" class="form-input" placeholder="Create a secure password" required>
                 </div>
                 
+                <div class="form-group">
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password" required>
+                </div>
+                
                 <div class="checkbox-group">
                     <input type="checkbox" id="terms" class="checkbox" required>
                     <label for="terms" class="checkbox-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
@@ -674,8 +699,45 @@
                 
                 <button type="submit" class="submit-button">Create My Persona</button>
                 
-                <div class="login-link">
-                    Already have a persona? <a href="#" id="login-link">Log In</a>
+                <div class="auth-switch">
+                    Already have a persona? <a href="#" id="switch-to-login">Log In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Log In to Your Persona</h2>
+                <button class="close-modal" id="close-login-modal">&times;</button>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email" class="form-label">Email</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password" class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember-me" class="checkbox">
+                    <label for="remember-me" class="checkbox-label">Remember me</label>
+                </div>
+                
+                <button type="submit" class="submit-button">Log In</button>
+                
+                <div class="auth-switch">
+                    Don't have a persona? <a href="#" id="switch-to-register">Create One</a>
+                </div>
+                
+                <div class="auth-switch">
+                    <a href="#" id="forgot-password">Forgot your password?</a>
                 </div>
             </form>
         </div>
@@ -695,6 +757,16 @@
         const closeRegisterPopup = document.getElementById('close-register-popup');
         const guestProceed = document.getElementById('guest-proceed');
         const registerProceed = document.getElementById('register-proceed');
+        const loginFromOption = document.getElementById('login-from-option');
+        
+        // Modal elements
+        const registrationModal = document.getElementById('registration-modal');
+        const loginModal = document.getElementById('login-modal');
+        const closeRegistrationModal = document.getElementById('close-registration-modal');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const forgotPassword = document.getElementById('forgot-password');
         
         // Open pop-ups
         guestButton.addEventListener('click', () => {
@@ -722,7 +794,13 @@
         
         registerProceed.addEventListener('click', () => {
             registerPopup.style.display = 'none';
-            modal.style.display = 'flex';
+            registrationModal.style.display = 'flex';
+        });
+        
+        // Login from option container
+        loginFromOption.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'flex';
         });
         
         // Close pop-ups when clicking outside the content
@@ -736,32 +814,64 @@
         });
         
         // Modal functionality
-        const closeModalBtn = document.getElementById('close-modal');
-        const modal = document.getElementById('registration-modal');
-        const loginLink = document.getElementById('login-link');
-        
-        closeModalBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
+        closeRegistrationModal.addEventListener('click', () => {
+            registrationModal.style.display = 'none';
         });
         
-        loginLink.addEventListener('click', (e) => {
+        closeLoginModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+        
+        // Switch between login and registration
+        switchToLogin.addEventListener('click', (e) => {
             e.preventDefault();
-            alert('Login functionality would be implemented here');
+            registrationModal.style.display = 'none';
+            loginModal.style.display = 'flex';
         });
         
-        // Close modal when clicking outside the content
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'none';
+            registrationModal.style.display = 'flex';
+        });
+        
+        // Forgot password
+        forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Password reset functionality would be implemented here');
+        });
+        
+        // Close modals when clicking outside the content
         window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
+            if (e.target === registrationModal) {
+                registrationModal.style.display = 'none';
+            }
+            if (e.target === loginModal) {
+                loginModal.style.display = 'none';
             }
         });
         
         // Form submission
         document.getElementById('registration-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
             // In a real application, you would handle form submission here
             alert('Registration would be processed here. In a real app, this would connect to your backend.');
-            modal.style.display = 'none';
+            registrationModal.style.display = 'none';
+        });
+        
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In a real application, you would handle login here
+            alert('Login would be processed here. In a real app, this would connect to your backend.');
+            loginModal.style.display = 'none';
         });
     </script>
 </body>
