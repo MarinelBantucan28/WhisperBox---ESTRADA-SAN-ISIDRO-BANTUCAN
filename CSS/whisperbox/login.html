@@ -173,7 +173,7 @@
         .option-button {
             display: block;
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             border: none;
             border-radius: 8px;
             font-size: 1.1rem;
@@ -209,7 +209,7 @@
             flex-direction: column;
             justify-content: center;
             text-align: center;
-            padding: 20px 0;
+            padding: 15px 0;
         }
 
         .option-intro p {
@@ -229,7 +229,7 @@
         }
 
         .option-card:hover .login-link-option {
-            color: #718096;
+            color: #1a1e24;
         }
 
         .login-link-option a {
@@ -700,7 +700,7 @@
                 <button type="submit" class="submit-button">Create My Persona</button>
                 
                 <div class="auth-switch">
-                    Already have a persona? <a href="#" id="switch-to-login">Log In</a>
+                    Already have a persona? <a href="#" id="switch-to-login">Log In here</a>
                 </div>
             </form>
         </div>
@@ -862,14 +862,12 @@
                 return;
             }
             
-            // In a real application, you would handle form submission here
             alert('Registration would be processed here. In a real app, this would connect to your backend.');
             registrationModal.style.display = 'none';
         });
         
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            // In a real application, you would handle login here
             alert('Login would be processed here. In a real app, this would connect to your backend.');
             loginModal.style.display = 'none';
         });
