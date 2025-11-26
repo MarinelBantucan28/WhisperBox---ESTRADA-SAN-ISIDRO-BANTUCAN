@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhisperBox - Share What You Can't Say Out Loud</title>
+    <link rel="stylesheet" href="reg.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="img/logo.png" alt="WhisperBox Logo">
+            </div>
+            <h1>WhisperBox</h1>
+            <p>Share What You Can't Say Out Loud</p>
+        </div>
+        
+        <div class="content">
+            <div class="description">
+                A digital sanctuary for your unfiltered thoughts. Speak freely, without a name or a face.
+            </div>
+            
+            <div class="options-container">
+                <!-- Guest Option -->
+                <div class="option-card guest">
+                    <div class="option-header">
+                        <div class="option-icon">👤</div>
+                        <h2 class="option-title">Share Instantly as a Guest</h2>
+                    </div>
+                    
+                    <div class="option-intro">
+                        <p>Perfect for a fleeting thought, a quick confession, or a single, powerful sentence. No commitment, no trace.</p>
+                        <button class="option-button" id="guest-button">Post Anonymously</button>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="divider">
+                    <span class="divider-text">Or</span>
+                </div>
+                
+                <!-- Registration Option -->
+                <div class="option-card register">
+                    <div class="option-header">
+                        <div class="option-icon">🎭</div>
+                        <h2 class="option-title">Craft an Anonymous Persona</h2>
+                    </div>
+                    
+                    <div class="option-intro">
+                        <p>Build a lasting, anonymous identity to develop your thoughts over time. Curate your own anonymous journal.</p>
+                        <button class="option-button" id="register-button">Create Your Persona</button>
+                        <div class="login-link-option">
+                            Already have a persona? <a href="#" id="login-from-option">Log in here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Guest Pop-up Message -->
+    <div class="popup-overlay guest-popup" id="guest-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 class="popup-title">Share Instantly as a Guest</h2>
+                <button class="close-popup" id="close-guest-popup">&times;</button>
+            </div>
+            
+            <div class="popup-body">
+                <h3 class="details-title">What this means:</h3>
+                <ul class="pros-list">
+                    <li><strong>Instant Access:</strong> Start sharing immediately</li>
+                    <li><strong>Maximum Privacy:</strong> No account or email required</li>
+                    <li><strong>Simple Sharing:</strong> Write and post letters to the public feed</li>
+                </ul>
+                
+                <h3 class="details-title">Important Limitations:</h3>
+                <ul class="limitations-list">
+                    <li>To edit or delete letters, you <strong>must save the unique secret link</strong> provided after posting</li>
+                    <li>If you lose the link, you lose access to your letters permanently</li>
+                    <li>Guest posts are marked with a "Guest" tag</li>
+                    <li>Guest content may be prioritized for moderation review</li>
+                </ul>
+            </div>
+            
+            <div class="popup-footer">
+                <button class="proceed-button" id="guest-proceed">Continue Anonymously</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registration Pop-up Message -->
+    <div class="popup-overlay register-popup" id="register-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 class="popup-title">Craft an Anonymous Persona</h2>
+                <button class="close-popup" id="close-register-popup">&times;</button>
+            </div>
+            
+            <div class="popup-body">
+                <h3 class="details-title">What you'll get:</h3>
+                <ul class="pros-list">
+                    <li><strong>Full Control:</strong> View, edit, and manage all your letters</li>
+                    <li><strong>Cross-Device Access:</strong> Sign in on any device</li>
+                    <li><strong>Enhanced Features:</strong> Bookmark favorites and receive community support</li>
+                </ul>
+                
+                <div class="promise-box">
+                    <h3 class="promise-title">Our Promise:</h3>
+                    <p>Your identity is still <strong>completely anonymous to the public</strong>. We never share your email, and you're building a persistent, yet private, voice within our community.</p>
+                </div>
+            </div>
+            
+            <div class="popup-footer">
+                <button class="proceed-button" id="register-proceed">Create a Persona</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registration Modal -->
+    <div class="modal" id="registration-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Your Anonymous Persona</h2>
+                <button class="close-modal" id="close-registration-modal">&times;</button>
+            </div>
+            
+            <form id="registration-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Your private display name (visible only to you)" required>
+                    <small style="color: #718096; font-size: 0.8rem;">Public posts will still show as "Anonymous"</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="For login and security only" required>
+                    <small style="color: #718096; font-size: 0.8rem;">We will never display your email publicly</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Create a secure password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" class="checkbox" required>
+                    <label for="terms" class="checkbox-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                
+                <button type="submit" class="submit-button">Create My Persona</button>
+                
+                <div class="auth-switch">
+                    Already have a persona? <a href="#" id="switch-to-login">Log In here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Log In to Your Persona</h2>
+                <button class="close-modal" id="close-login-modal">&times;</button>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email" class="form-label">Email</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password" class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember-me" class="checkbox">
+                    <label for="remember-me" class="checkbox-label">Remember me</label>
+                </div>
+                
+                <button type="submit" class="submit-button">Log In</button>
+                
+                <div class="auth-switch">
+                    Don't have a persona? <a href="#" id="switch-to-register">Create One</a>
+                </div>
+                
+                <div class="auth-switch">
+                    <a href="#" id="forgot-password">Forgot your password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>WhisperBox &copy; 2025 - A Safe Space for Anonymous Expression</p>
+    </div>
+
+    <script src="regi.js"></script>
+</body>
+</html>
