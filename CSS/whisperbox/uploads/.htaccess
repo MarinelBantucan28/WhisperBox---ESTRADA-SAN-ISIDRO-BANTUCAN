@@ -1,0 +1,9 @@
+Options -Indexes
+<FilesMatch "\.(php|phtml|pl|py|jsp|sh|bat)$">
+  Deny from all
+</FilesMatch>
+# Prevent .htaccess itself from being served
+<Files ".htaccess">
+  Order allow,deny
+  Deny from all
+</Files>
