@@ -1,0 +1,13 @@
+{
+  "name": "whisperbox/backend",
+  "description": "WhisperBox backend dependencies",
+  "require": {
+    "google/cloud-storage": "^1.30",
+    "firebase/php-jwt": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "WhisperBox\\": "src/"
+    }
+  }
+}

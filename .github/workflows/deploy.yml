@@ -1,0 +1,232 @@
+name: Deploy WhisperBox
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      - name: Verify deploy service account has required IAM roles
+        run: |
+          set -e
+          echo "Checking deploy service account IAM roles..."
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          SA_EMAIL=${{ secrets.GCP_SA_EMAIL }}
+          # Required roles -- keep in sync with REQUIRED_IAM_PERMISSIONS.md
+          REQUIRED=(
+            "roles/run.admin"
+            "roles/cloudbuild.builds.builder"
+            "roles/secretmanager.secretAccessor"
+            "roles/secretmanager.viewer"
+            "roles/iam.serviceAccountUser"
+            "roles/storage.admin"
+          )
+
+          echo "Querying project IAM bindings for $SA_EMAIL"
+          HAVE_OUT=$(gcloud projects get-iam-policy "$PROJECT_ID" --flatten="bindings[]" --filter="bindings.members:serviceAccount:$SA_EMAIL" --format="value(bindings.role)" || true)
+          echo "Found roles for $SA_EMAIL:\n$HAVE_OUT"
+
+          MISSING=()
+          for r in "${REQUIRED[@]}"; do
+            if ! echo "$HAVE_OUT" | grep -q "^$r$"; then
+              MISSING+=("$r")
+            fi
+          done
+
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "ERROR: Deploy service account $SA_EMAIL is missing required roles:" >&2
+            for r in "${MISSING[@]}"; do
+              echo " - $r" >&2
+            done
+            echo "\nRemediation commands (run as a project admin):" >&2
+            for r in "${MISSING[@]}"; do
+              echo "gcloud projects add-iam-policy-binding $PROJECT_ID --member=\"serviceAccount:$SA_EMAIL\" --role=\"$r\"" >&2
+            done
+            exit 1
+          fi
+
+          echo "All required roles present for $SA_EMAIL"
+
+      - name: Create Secret Manager secrets (optional seed from GitHub secret values)
+        shell: pwsh
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          RUNTIME_SA: ${{ secrets.CLOUD_RUN_RUNTIME_SA }}
+          DEPLOY_SA: ${{ secrets.CLOUD_RUN_DEPLOY_SA }}
+          SECRET_DB_HOST_NAME: ${{ secrets.SECRET_DB_HOST_NAME }}
+          SECRET_DB_NAME_NAME: ${{ secrets.SECRET_DB_NAME_NAME }}
+          SECRET_DB_USER_NAME: ${{ secrets.SECRET_DB_USER_NAME }}
+          SECRET_DB_PASS_NAME: ${{ secrets.SECRET_DB_PASS_NAME }}
+          SECRET_APP_SECRET_NAME: ${{ secrets.SECRET_APP_SECRET_NAME }}
+          # Optional: secret VALUEs (if you prefer to seed Secret Manager from GitHub secrets)
+          SECRET_DB_HOST_VALUE: ${{ secrets.SECRET_DB_HOST_VALUE }}
+          SECRET_DB_NAME_VALUE: ${{ secrets.SECRET_DB_NAME_VALUE }}
+          SECRET_DB_USER_VALUE: ${{ secrets.SECRET_DB_USER_VALUE }}
+          SECRET_DB_PASS_VALUE: ${{ secrets.SECRET_DB_PASS_VALUE }}
+          SECRET_APP_SECRET_VALUE: ${{ secrets.SECRET_APP_SECRET_VALUE }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Write-Host "Preparing to create secrets in project: $env:PROJECT_ID"
+
+          # Build list of secret NAMES to create (only include non-empty variables)
+          $names = @()
+          if ($env:SECRET_DB_HOST_NAME) { $names += $env:SECRET_DB_HOST_NAME }
+          if ($env:SECRET_DB_NAME_NAME) { $names += $env:SECRET_DB_NAME_NAME }
+          if ($env:SECRET_DB_USER_NAME) { $names += $env:SECRET_DB_USER_NAME }
+          if ($env:SECRET_DB_PASS_NAME) { $names += $env:SECRET_DB_PASS_NAME }
+          if ($env:SECRET_APP_SECRET_NAME) { $names += $env:SECRET_APP_SECRET_NAME }
+
+          if ($names.Count -eq 0) {
+            Write-Host "No secret names provided in workflow. Skipping creation step."
+            exit 0
+          }
+
+          # Optionally seed values if *_VALUE secrets are provided. Create a local ./secrets dir for seeding.
+          $seed = $false
+          New-Item -ItemType Directory -Path ./secrets -Force | Out-Null
+          function SeedIfValue($nameEnv, $valueEnv) {
+            param($nameEnv, $valueEnv)
+            if ($env:$nameEnv -and $env:$valueEnv) {
+              $target = Join-Path -Path (Get-Location) -ChildPath "secrets\$($env:$nameEnv).txt"
+              Write-Host "Seeding secret file: $target"
+              [System.IO.File]::WriteAllText($target, $env:$valueEnv)
+              return $true
+            }
+            return $false
+          }
+
+          if (SeedIfValue 'SECRET_DB_HOST_NAME' 'SECRET_DB_HOST_VALUE') { $seed = $true }
+          if (SeedIfValue 'SECRET_DB_NAME_NAME' 'SECRET_DB_NAME_VALUE') { $seed = $true }
+          if (SeedIfValue 'SECRET_DB_USER_NAME' 'SECRET_DB_USER_VALUE') { $seed = $true }
+          if (SeedIfValue 'SECRET_DB_PASS_NAME' 'SECRET_DB_PASS_VALUE') { $seed = $true }
+          if (SeedIfValue 'SECRET_APP_SECRET_NAME' 'SECRET_APP_SECRET_VALUE') { $seed = $true }
+
+          # Call the helper script (located in the repo) to create secrets and bind IAM
+          $scriptPath = "./scripts/create_gcp_secrets.ps1"
+          if (-not (Test-Path $scriptPath)) { Write-Error "create_gcp_secrets.ps1 not found at $scriptPath"; exit 1 }
+
+          Write-Host "Creating secrets: $($names -join ', ')"
+          $args = @('-ProjectId', $env:PROJECT_ID, '-Secrets', $names, '-RuntimeServiceAccount', $env:RUNTIME_SA)
+          if ($env:DEPLOY_SA) { $args += @('-DeployServiceAccount', $env:DEPLOY_SA) }
+          if ($seed) { $args += @('-SeedFromFiles') }
+
+          & $scriptPath @args
+
+
+      - name: Verify Secret Manager secrets exist and are accessible
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          SECRET_DB_HOST: ${{ secrets.SECRET_DB_HOST_NAME }}
+          SECRET_DB_NAME: ${{ secrets.SECRET_DB_NAME_NAME }}
+          SECRET_DB_USER: ${{ secrets.SECRET_DB_USER_NAME }}
+          SECRET_DB_PASS: ${{ secrets.SECRET_DB_PASS_NAME }}
+          SECRET_APP_SECRET: ${{ secrets.SECRET_APP_SECRET_NAME }}
+          REGION: us-central1
+          SERVICE_NAME: ${{ secrets.CLOUD_RUN_SERVICE }}
+        run: |
+          set -e
+          echo "Checking Secret Manager secrets..."
+          SECRETS=("$SECRET_DB_HOST" "$SECRET_DB_NAME" "$SECRET_DB_USER" "$SECRET_DB_PASS" "$SECRET_APP_SECRET")
+          for s in "${SECRETS[@]}"; do
+            if [ -z "$s" ]; then
+              echo "Skipping empty secret name"
+              continue
+            fi
+            echo "Verifying secret exists: $s"
+            if ! gcloud secrets describe "$s" --project="$PROJECT_ID" >/dev/null 2>&1; then
+              echo "ERROR: Secret $s does not exist in project $PROJECT_ID"; exit 1
+            fi
+            echo "Attempting to access latest version of $s to verify Action's SA has access"
+            if ! gcloud secrets versions access latest --secret="$s" --project="$PROJECT_ID" >/dev/null 2>&1; then
+              echo "ERROR: Deploy SA cannot access secret $s. Ensure the deploy service account has secretAccessor role or adjust secret permissions."; exit 1
+            fi
+            echo "Secret $s exists and is accessible"
+          done
+
+          # If Cloud Run service exists, check whether its runtime service account has secretAccessor on each secret
+          if gcloud run services describe "$SERVICE_NAME" --region "$REGION" --project "$PROJECT_ID" >/dev/null 2>&1; then
+            SA_NAME=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --project "$PROJECT_ID" --format='value(spec.template.spec.serviceAccountName)')
+            if [ -z "$SA_NAME" ]; then
+              echo "Cloud Run service exists but no service account found. Skipping runtime SA checks.";
+            else
+              echo "Found Cloud Run runtime service account: $SA_NAME. Verifying it has secretAccessor role for each secret..."
+              for s in "${SECRETS[@]}"; do
+                if [ -z "$s" ]; then continue; fi
+                # Check IAM policy for the secret
+                if ! gcloud secrets get-iam-policy "$s" --project="$PROJECT_ID" --format=json | grep -q "$SA_NAME"; then
+                  echo "WARNING: Runtime service account $SA_NAME is not present in IAM policy for secret $s. Ensure it has roles/secretmanager.secretAccessor.";
+                else
+                  echo "Runtime SA has an entry in IAM policy for $s (may still need exact role check)."
+                fi
+              done
+            fi
+          else
+            echo "Cloud Run service $SERVICE_NAME not found. Skipping runtime SA checks."
+          fi
+
+      - name: Build and push to GCR
+        run: |
+          cd CSS/whisperbox/backend
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/whisperbox-api
+
+      - name: Deploy to Cloud Run using Secret Manager for secrets
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          REGION: us-central1
+          SERVICE_NAME: whisperbox-api
+          SECRET_DB_HOST: ${{ secrets.SECRET_DB_HOST_NAME }}
+          SECRET_DB_NAME: ${{ secrets.SECRET_DB_NAME_NAME }}
+          SECRET_DB_USER: ${{ secrets.SECRET_DB_USER_NAME }}
+          SECRET_DB_PASS: ${{ secrets.SECRET_DB_PASS_NAME }}
+          SECRET_APP_SECRET: ${{ secrets.SECRET_APP_SECRET_NAME }}
+          SECRET_GCS_BUCKET: ${{ secrets.SECRET_GCS_BUCKET_NAME }}
+        run: |
+          # Build the base deploy command
+          IMAGE=gcr.io/${PROJECT_ID}/whisperbox-api
+          SET_SECRETS=""
+
+          # Helper to append secret mapping if provided
+          append_secret() {
+            local envkey="$1"; local secretName="$2"
+            if [ -n "$secretName" ]; then
+              SET_SECRETS="$SET_SECRETS --set-secrets=${envkey}=projects/${PROJECT_ID}/secrets/${secretName}:latest"
+            fi
+          }
+
+          append_secret DB_HOST "$SECRET_DB_HOST"
+          append_secret DB_NAME "$SECRET_DB_NAME"
+          append_secret DB_USER "$SECRET_DB_USER"
+          append_secret DB_PASS "$SECRET_DB_PASS"
+          append_secret APP_SECRET "$SECRET_APP_SECRET"
+          append_secret GCS_BUCKET "$SECRET_GCS_BUCKET"
+
+          echo "Deploying to Cloud Run with secrets: $SET_SECRETS"
+          # Deploy with secret-backed environment variables
+          gcloud run deploy ${SERVICE_NAME} \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated ${SET_SECRETS}
+
+      - name: Deploy Firebase Hosting
+        uses: w9jds/firebase-action@v2
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

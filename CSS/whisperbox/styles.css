@@ -1342,6 +1342,66 @@ a:hover {
     transform: translateY(-5px);
 }
 
+/* Sentiment Badge Styles */
+.sentiment-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    border: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.sentiment-badge.sentiment-positive {
+    background-color: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.sentiment-badge.sentiment-negative {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+.sentiment-badge.sentiment-neutral {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+    border-color: var(--warning-color);
+}
+
+.sentiment-badge.sentiment-mixed {
+    background-color: var(--info-color);
+    color: white;
+    border-color: var(--info-color);
+}
+
+/* Sentiment badge in letter cards */
+.letter-card .sentiment-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    margin-bottom: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Sentiment confidence indicator */
+.sentiment-confidence {
+    font-size: 0.7rem;
+    color: var(--gray-color);
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.sentiment-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .modal-button {
     padding: 12px 30px;
     background-color: var(--primary-color);

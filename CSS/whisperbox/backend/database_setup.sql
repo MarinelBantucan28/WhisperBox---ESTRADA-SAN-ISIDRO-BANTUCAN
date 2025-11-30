@@ -78,6 +78,18 @@ CREATE TABLE user_sessions (
     expires_at TIMESTAMP NULL
 );
 
+-- Refresh tokens for JWT token renewal
+CREATE TABLE refresh_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    revoked BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Insert default categories
 INSERT INTO categories (name, description, color) VALUES
 ('Confessions', 'Share your deepest secrets and confessions', '#E74C3C'),

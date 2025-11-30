@@ -54,12 +54,10 @@ class Post {
 
     // Read all posts with optional pagination
     public function readAll($limit = null, $offset = null) {
-        $query = "SELECT p.*, c.name as category, c.color as category_color,
-                         u.display_name as user_display_name
+        // Query without assuming is_public or categories table exist
+        $query = "SELECT p.*, u.display_name as user_display_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_user_id = u.id
-                  WHERE p.is_public = 1
                   ORDER BY p.created_at DESC";
 
         if ($limit !== null && $offset !== null) {
@@ -80,10 +78,8 @@ class Post {
 
     // Get single post
     public function readOne() {
-        $query = "SELECT p.*, c.name as category, c.color as category_color,
-                         u.display_name as user_display_name
+        $query = "SELECT p.*, u.display_name as user_display_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_user_id = u.id
                   WHERE p.id = ? LIMIT 0,1";
 
@@ -110,12 +106,11 @@ class Post {
 
     // Read posts by category with optional pagination
     public function readByCategory($category, $limit = null, $offset = null) {
-        $query = "SELECT p.*, c.name as category, c.color as category_color,
-                         u.display_name as user_display_name
+        // Handle mood-based filtering (mood column contains category name)
+        $query = "SELECT p.*, u.display_name as user_display_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_user_id = u.id
-                  WHERE p.is_public = 1 AND c.name = :category
+                  WHERE p.mood = :category
                   ORDER BY p.created_at DESC";
 
         if ($limit !== null && $offset !== null) {
@@ -141,12 +136,10 @@ class Post {
         $from_date = date('Y-m-d', strtotime($from));
         $to_date = date('Y-m-d', strtotime($to));
 
-        $query = "SELECT p.*, c.name as category, c.color as category_color,
-                         u.display_name as user_display_name
+        $query = "SELECT p.*, u.display_name as user_display_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_user_id = u.id
-                  WHERE p.is_public = 1 AND DATE(p.created_at) BETWEEN ? AND ?
+                  WHERE DATE(p.created_at) BETWEEN ? AND ?
                   ORDER BY p.created_at DESC";
 
         if ($limit !== null && $offset !== null) {
@@ -169,10 +162,8 @@ class Post {
 
     // Read posts by current user
     public function readByUser($user_id, $limit = null, $offset = null) {
-        $query = "SELECT p.*, c.name as category, c.color as category_color,
-                         u.display_name as user_display_name
+        $query = "SELECT p.*, u.display_name as user_display_name
                   FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_user_id = u.id
                   WHERE p.author_user_id = ?
                   ORDER BY p.created_at DESC";
@@ -195,7 +186,7 @@ class Post {
 
     // Count helpers for pagination
     public function countAll() {
-        $query = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE is_public = 1";
+        $query = "SELECT COUNT(*) as total FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -204,8 +195,7 @@ class Post {
 
     public function countByCategory($category) {
         $query = "SELECT COUNT(p.id) as total FROM " . $this->table_name . " p
-                  LEFT JOIN categories c ON p.category_id = c.id
-                  WHERE p.is_public = 1 AND c.name = :category";
+                  WHERE p.mood = :category";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':category', $category);
         $stmt->execute();
@@ -217,7 +207,7 @@ class Post {
         $from_date = date('Y-m-d', strtotime($from));
         $to_date = date('Y-m-d', strtotime($to));
         $query = "SELECT COUNT(p.id) as total FROM " . $this->table_name . " p
-                  WHERE p.is_public = 1 AND DATE(p.created_at) BETWEEN ? AND ?";
+                  WHERE DATE(p.created_at) BETWEEN ? AND ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(1, $from_date);
         $stmt->bindValue(2, $to_date);
