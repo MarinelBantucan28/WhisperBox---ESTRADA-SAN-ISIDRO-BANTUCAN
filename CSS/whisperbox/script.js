@@ -546,7 +546,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         currentFrom = null;
         currentTo = null;
 
-        fetch(`${API_BASE_URL}/posts.php?action=get_all_posts&page=${currentPage}&per_page=${currentPerPage}`)
+        // Use action=get_posts with category=all for all posts
+        fetch(`${API_BASE_URL}/posts.php?action=get_posts&category=all&page=${currentPage}&per_page=${currentPerPage}`)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -554,13 +555,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                     totalCount = data.total_count || 0;
                     renderPagination(totalCount, currentPage, currentPerPage);
                 } else {
-                    console.log('No posts found yet');
+                    console.log('No posts found yet:', data.message);
                     renderPosts([]);
                     renderPagination(0, 1, currentPerPage);
                 }
             })
             .catch(error => {
                 console.error('Error loading posts:', error);
+                showToast('Unable to load letters. Please try again later.', 'error');
                 renderPosts([]);
                 renderPagination(0, 1, currentPerPage);
             });
@@ -635,6 +637,39 @@ document.addEventListener('DOMContentLoaded', async function() {
             catDiv.className = 'letter-category';
             catDiv.textContent = categoryNames[post.category] || post.category;
             letterCard.appendChild(catDiv);
+
+            // Sentiment Badge (if available)
+            if (post.sentiment) {
+                const sentimentDiv = document.createElement('div');
+                sentimentDiv.className = 'letter-sentiment';
+
+                const sentiment = post.sentiment.polarity || 'neutral';
+                const confidence = post.sentiment.confidence || 0;
+
+                let sentimentText = '';
+                let sentimentClass = '';
+
+                if (sentiment === 'positive') {
+                    sentimentText = '😊 Positive';
+                    sentimentClass = 'sentiment-positive';
+                } else if (sentiment === 'negative') {
+                    sentimentText = '😔 Negative';
+                    sentimentClass = 'sentiment-negative';
+                } else {
+                    sentimentText = '😐 Neutral';
+                    sentimentClass = 'sentiment-neutral';
+                }
+
+                // Add confidence score if available
+                if (confidence > 0) {
+                    sentimentText += ` (${Math.round(confidence * 100)}%)`;
+                }
+
+                sentimentDiv.className = `letter-sentiment ${sentimentClass}`;
+                sentimentDiv.textContent = sentimentText;
+                sentimentDiv.title = `Sentiment analysis: ${sentiment} (confidence: ${Math.round(confidence * 100)}%)`;
+                letterCard.appendChild(sentimentDiv);
+            }
 
             // Title (if any)
             if (post.title) {

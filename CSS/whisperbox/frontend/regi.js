@@ -4,8 +4,13 @@ if (window.location.protocol === 'file:') {
     window.API_BASE_URL = null;
     console.warn('regi.js: Running from file:// — API calls will fail. Open via http://localhost/...');
 } else {
-    const pathDir = window.location.pathname.replace(/\/[^\/]*$/, '');
-    window.API_BASE_URL = window.location.origin + pathDir + '/backend/api';
+    // Compute base dir: if this page is under /frontend, resolve one level up to site root
+    let pathDir = window.location.pathname.replace(/\/[^\/]*$/, '');
+    // If running from the frontend folder, use its parent directory as the app root
+    const baseDir = pathDir.replace(/\/frontend$/, '');
+    window.API_BASE_URL = window.location.origin + baseDir + '/backend/api';
+    // Save baseDir for redirects
+    window.APP_BASE_DIR = baseDir;
 }
 
 // Use the global API_BASE_URL
@@ -98,7 +103,12 @@ if (guestProceed) {
     guestProceed.addEventListener('click', () => {
         closeAllModals();
         // Redirect to main page without authentication (guest mode)
-        window.location.href = 'index.html';
+        // If we computed APP_BASE_DIR above, use it to go to the correct index.html
+        if (window.APP_BASE_DIR !== undefined) {
+            window.location.href = window.location.origin + window.APP_BASE_DIR + '/index.html';
+        } else {
+            window.location.href = '../index.html';
+        }
     });
 }
 

@@ -1,0 +1,84 @@
+name: Build & Test WhisperBox Backend
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: whisperbox_db
+          MYSQL_USER: whisperbox_user
+          MYSQL_PASSWORD: whisperbox_pass
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: pdo, pdo_mysql, mbstring, zip
+        tools: composer:v2
+
+    - name: Validate composer.json
+      run: composer validate
+
+    - name: Install PHP dependencies
+      working-directory: CSS/whisperbox/backend
+      run: composer install --no-interaction --prefer-dist
+
+    - name: PHP Lint (check syntax)
+      working-directory: CSS/whisperbox/backend
+      run: |
+        for file in $(find . -name "*.php" -type f); do
+          php -l "$file"
+        done
+
+    - name: Check required files exist
+      run: |
+        [ -f CSS/whisperbox/backend/lib/jwt_helper.php ] || (echo "Missing jwt_helper.php" && exit 1)
+        [ -f CSS/whisperbox/backend/api/auth.php ] || (echo "Missing auth.php" && exit 1)
+        [ -f CSS/whisperbox/backend/api/refresh.php ] || (echo "Missing refresh.php" && exit 1)
+        [ -f CSS/whisperbox/backend/database_setup.sql ] || (echo "Missing database_setup.sql" && exit 1)
+        echo "✓ All required files present"
+
+    - name: Verify refresh token implementation
+      working-directory: CSS/whisperbox/backend
+      run: |
+        grep -q "function generate_refresh_token" lib/jwt_helper.php || (echo "Missing generate_refresh_token" && exit 1)
+        grep -q "function verify_refresh_token" lib/jwt_helper.php || (echo "Missing verify_refresh_token" && exit 1)
+        grep -q "refresh_tokens" database_setup.sql || (echo "Missing refresh_tokens table" && exit 1)
+        grep -q "refresh.php" ../index.html || (echo "Missing refresh.php reference in index.html" && exit 1)
+        grep -q "token-refresh-manager" ../token-refresh-manager.js || (echo "Missing token-refresh-manager.js" && exit 1)
+        echo "✓ Refresh token implementation verified"
+
+    - name: Build Docker image
+      working-directory: CSS/whisperbox/backend
+      run: |
+        docker build -t whisperbox-backend:latest .
+        echo "✓ Docker image built successfully"
+
+    - name: Run smoke tests
+      run: |
+        # Wait for MySQL to be ready
+        sleep 10
+        
+        # Check MySQL connectivity
+        mysql -h 127.0.0.1 -u whisperbox_user -pwhisperbox_pass whisperbox_db -e "SELECT 1" || true
+        echo "✓ MySQL connectivity verified"

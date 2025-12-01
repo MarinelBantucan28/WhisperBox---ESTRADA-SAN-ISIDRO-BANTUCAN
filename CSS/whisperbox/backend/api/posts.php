@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
+require_once '../config/bootstrap.php';
 require_once '../config/database.php';
 require_once '../models/Post.php';
 
@@ -96,14 +97,16 @@ try {
                 }
                 break;
                 
-            case 'create_post':
-                session_start();
-                if(isset($_SESSION['user_id'])) {
+                case 'create_post':
+                // Require JWT auth
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                if($user_id) {
                     $post = new Post($db);
                     $post->title = $data->title ?? '';
                     $post->content = $data->content;
                     $post->author_type = 'user';
-                    $post->author_user_id = $_SESSION['user_id'];
+                    $post->author_user_id = $user_id;
                     // Determine category id: accept numeric category_id or map from name
                     $cat_val = $data->category_id ?? null;
                     if (is_numeric($cat_val)) {
@@ -143,9 +146,10 @@ try {
 
             // ... (keep existing delete cases the same)
 
-            case 'add_bookmark':
-                session_start();
-                if(!isset($_SESSION['user_id'])) {
+                case 'add_bookmark':
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                if(!$user_id) {
                     http_response_code(401);
                     $response = array(
                         "status" => "error",
@@ -163,7 +167,7 @@ try {
                         // Insert bookmark if not exists
                         $insert = "INSERT IGNORE INTO bookmarks (user_id, post_id) VALUES (?, ?)";
                         $stmtIns = $db->prepare($insert);
-                        $ok = $stmtIns->execute([$_SESSION['user_id'], $post_id]);
+                        $ok = $stmtIns->execute([$user_id, $post_id]);
                         if($ok) {
                             $response = array(
                                 "status" => "success",
@@ -182,8 +186,9 @@ try {
                 break;
 
             case 'remove_bookmark':
-                session_start();
-                if(!isset($_SESSION['user_id'])) {
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                if(!$user_id) {
                     http_response_code(401);
                     $response = array(
                         "status" => "error",
@@ -221,11 +226,12 @@ try {
     }
     
     // PUT requests for updating posts
-    if($_SERVER['REQUEST_METHOD'] == 'PUT') {
+        if($_SERVER['REQUEST_METHOD'] == 'PUT') {
         parse_str(file_get_contents("php://input"), $_PUT);
-        
-        session_start();
-        if(!isset($_SESSION['user_id'])) {
+
+        $payload = require_auth();
+        $user_id = $payload->sub ?? null;
+        if(!$user_id) {
             http_response_code(401);
             $response = array(
                 "status" => "error",
@@ -248,7 +254,7 @@ try {
                 $verify_stmt->execute();
                 $post_owner = $verify_stmt->fetch(PDO::FETCH_ASSOC);
                 
-                if(!$post_owner || $post_owner['author_user_id'] != $_SESSION['user_id']) {
+                if(!$post_owner || $post_owner['author_user_id'] != $user_id) {
                     http_response_code(403);
                     $response = array(
                         "status" => "error",
@@ -282,11 +288,12 @@ try {
     }
     
     // DELETE requests for deleting posts
-    if($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+        if($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         parse_str(file_get_contents("php://input"), $_DELETE);
-        
-        session_start();
-        if(!isset($_SESSION['user_id'])) {
+
+        $payload = require_auth();
+        $user_id = $payload->sub ?? null;
+        if(!$user_id) {
             http_response_code(401);
             $response = array(
                 "status" => "error",
@@ -309,7 +316,7 @@ try {
                 $verify_stmt->execute();
                 $post_owner = $verify_stmt->fetch(PDO::FETCH_ASSOC);
                 
-                if(!$post_owner || $post_owner['author_user_id'] != $_SESSION['user_id']) {
+                if(!$post_owner || $post_owner['author_user_id'] != $user_id) {
                     http_response_code(403);
                     $response = array(
                         "status" => "error",
@@ -453,53 +460,7 @@ try {
 
 echo json_encode($response);
 
-// Helper function for image upload - hardened checks
-function handleImageUpload($file) {
-    $max_size = 5 * 1024 * 1024; // 5MB
-
-    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        throw new Exception('No valid uploaded file.');
-    }
-
-    if ($file['size'] > $max_size) {
-        throw new Exception('File too large. Maximum size is 5MB.');
-    }
-
-    // Use finfo to detect real mime type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-
-    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
-    if (!isset($allowed[$mime])) {
-        throw new Exception('Invalid image type.');
-    }
-
-    // Double-check with getimagesize
-    $img_info = @getimagesize($file['tmp_name']);
-    if ($img_info === false) {
-        throw new Exception('Uploaded file is not a valid image.');
-    }
-
-    // Ensure upload directory exists
-    $upload_dir = realpath(__DIR__ . '/../uploads/images/') ?: (__DIR__ . '/../uploads/images/');
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
-    }
-
-    $ext = $allowed[$mime];
-    $filename = 'img_' . bin2hex(random_bytes(12)) . '.' . $ext;
-    $file_path = rtrim($upload_dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
-
-    if (!move_uploaded_file($file['tmp_name'], $file_path)) {
-        throw new Exception('Failed to move uploaded file.');
-    }
-
-    @chmod($file_path, 0644);
-
-    // Return web-relative path
-    return 'uploads/images/' . $filename;
-}
+// Image upload is provided by the centralized bootstrap helper `handleImageUpload()`
 
 // Helper function for category mapping
 function mapCategoryToId($category_name) {

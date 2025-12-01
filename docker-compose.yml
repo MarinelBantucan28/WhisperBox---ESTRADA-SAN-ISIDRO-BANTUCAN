@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: whisperbox_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: whisperbox_db
+      MYSQL_USER: whisperbox_user
+      MYSQL_PASSWORD: whisperbox_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./CSS/whisperbox/backend
+      dockerfile: Dockerfile
+    container_name: whisperbox_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./CSS/whisperbox/backend:/var/www/html:delegated
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: whisperbox_db
+      DB_USER: whisperbox_user
+      DB_PASS: whisperbox_pass
+      APP_SECRET: change_this_in_prod
+    command: ["apache2-foreground"]
+
+volumes:
+  db_data:

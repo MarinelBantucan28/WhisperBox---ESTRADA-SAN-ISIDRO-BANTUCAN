@@ -1,5 +1,16 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+// Restrictive CORS: allow specific origins only (do NOT use wildcard in production)
+$allowed_origins = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: " . $origin);
+    header("Access-Control-Allow-Credentials: true");
+}
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -8,8 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-session_start();
-
+require_once '../config/bootstrap.php';
 require_once '../config/database.php';
 require_once '../models/User.php';
 
@@ -47,19 +57,27 @@ try {
         
         switch ($action) {
             case 'update_display_name':
-                updateDisplayName($db, $_SESSION['user_id'], $data->display_name, $response);
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                updateDisplayName($db, $user_id, $data->display_name, $response);
                 break;
                 
             case 'update_email':
-                updateEmail($db, $_SESSION['user_id'], $data->email, $data->password, $response);
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                updateEmail($db, $user_id, $data->email, $data->password, $response);
                 break;
                 
             case 'change_password':
-                changePassword($db, $_SESSION['user_id'], $data->current_password, $data->new_password, $response);
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                changePassword($db, $user_id, $data->current_password, $data->new_password, $response);
                 break;
                 
             case 'delete_account':
-                deleteAccount($db, $_SESSION['user_id'], $response);
+                $payload = require_auth();
+                $user_id = $payload->sub ?? null;
+                deleteAccount($db, $user_id, $response);
                 break;
                 
             default:

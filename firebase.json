@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "public": "CSS/whisperbox",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "whisperbox-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
