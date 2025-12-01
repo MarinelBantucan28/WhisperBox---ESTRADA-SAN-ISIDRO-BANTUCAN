@@ -1,0 +1,11 @@
+﻿{
+  "name": "whisperbox-firebase",
+  "version": "1.0.0",
+  "description": "WhisperBox Firebase frontend application",
+  "private": true,
+  "scripts": {
+    "serve": "firebase serve",
+    "deploy": "firebase deploy --only hosting",
+    "rules:deploy": "firebase deploy --only firestore:rules,storage"
+  }
+}

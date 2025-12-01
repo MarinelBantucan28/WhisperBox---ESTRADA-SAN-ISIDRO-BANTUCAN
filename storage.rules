@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow image uploads under the 'letters/' folder with basic type/size checks
+    match /letters/{fileId} {
+      allow read: if true;
+      allow write: if request.resource != null
+        && request.resource.size < 5 * 1024 * 1024 // 5MB limit
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Deny other writes by default
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

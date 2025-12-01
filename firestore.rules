@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Posts collections: support both legacy `letters` and `anonymous_posts` for deployments
+    // Both collections follow the same anonymity-first rules
+    match /letters/{letterId} {
+      allow read: if resource.data.anonymous == true;
+
+      allow create: if
+        // All fields must be present and correct types
+        request.resource.data.keys().hasOnly(['title','content','category','image','createdAt','anonymous'])
+        && request.resource.data.anonymous == true
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 2000
+        && request.resource.data.category in ['joy', 'sadness', 'anger', 'exhaustion', 'reflection']
+        && (request.resource.data.image == null || request.resource.data.image is string);
+
+      // Deny updates/deletes to preserve post immutability
+      allow update, delete: if false;
+    }
+
+    // Also allow anonymous_posts as an alternate collection name
+    match /anonymous_posts/{postId} {
+      allow read: if resource.data.anonymous == true;
+
+      allow create: if
+        request.resource.data.keys().hasOnly(['title','content','category','image','createdAt','anonymous'])
+        && request.resource.data.anonymous == true
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 2000
+        && request.resource.data.category in ['joy', 'sadness', 'anger', 'exhaustion', 'reflection']
+        && (request.resource.data.image == null || request.resource.data.image is string);
+
+      allow update, delete: if false;
+    }
+
+    // Users: only the user may read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Bookmarks subcollection - user-specific saved letters (doesn't reveal anonymity)
+      match /bookmarks/{bookmarkId} {
+        allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Bookmarks (per-user subcollection) - only owner can access
+    match /users/{userId}/bookmarks/{bookmarkId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

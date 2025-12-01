@@ -1,0 +1,413 @@
+{
+  "immediate_danger": {
+    "level": "critical",
+    "description": "Immediate risk - user expressing intent to harm themselves or others",
+    "keywords": [
+      "i want to kill myself",
+      "i'm going to kill myself",
+      "i want to die",
+      "i'm going to end it",
+      "i'm going to end my life",
+      "goodbye forever",
+      "last message",
+      "final goodbye",
+      "no reason to live",
+      "nothing to live for",
+      "jump off the bridge",
+      "hang myself",
+      "overdose",
+      "cut my wrists",
+      "slit my throat",
+      "shoot myself",
+      "walk into traffic",
+      "drive off a cliff",
+      "nothing matters anymore",
+      "world would be better without me"
+    ],
+    "resources": [
+      {
+        "name": "988 Suicide & Crisis Lifeline",
+        "description": "Call or text 988 (US) - Available 24/7",
+        "url": "https://988lifeline.org",
+        "type": "phone_text_chat",
+        "countries": ["US"]
+      },
+      {
+        "name": "Crisis Text Line",
+        "description": "Text HOME to 741741",
+        "url": "https://www.crisistextline.org",
+        "type": "text",
+        "countries": ["US", "Canada", "UK"]
+      },
+      {
+        "name": "International Association for Suicide Prevention",
+        "description": "Find crisis resources by country",
+        "url": "https://www.iasp.info/resources/Crisis_Centres",
+        "type": "directory",
+        "countries": ["Global"]
+      },
+      {
+        "name": "Befrienders",
+        "description": "International suicide prevention network",
+        "url": "https://www.befrienders.org",
+        "type": "directory",
+        "countries": ["Global"]
+      }
+    ],
+    "action": "show_resources_immediately",
+    "notify_moderation": false,
+    "store_flag": false,
+    "user_message": "We care about your safety. Please reach out to one of these resources - you don't have to face this alone."
+  },
+  "self_harm": {
+    "level": "high",
+    "description": "Self-harm behaviors - cutting, burning, scratching, eating disorders",
+    "keywords": [
+      "i cut myself",
+      "i'm cutting",
+      "self harm",
+      "self-harm",
+      "hurt myself",
+      "i burn myself",
+      "burning myself",
+      "scratch myself",
+      "pull my hair",
+      "eat disorder",
+      "eating disorder",
+      "not eating",
+      "purging",
+      "binge eating",
+      "starving myself",
+      "scars on my wrists",
+      "razor blade",
+      "cutting blade",
+      "sharp object"
+    ],
+    "resources": [
+      {
+        "name": "Self-Injury Outreach & Support",
+        "description": "Information and support for self-harm",
+        "url": "https://sioutreach.org",
+        "type": "web",
+        "countries": ["US"]
+      },
+      {
+        "name": "Crisis Text Line",
+        "description": "Text HOME to 741741",
+        "url": "https://www.crisistextline.org",
+        "type": "text",
+        "countries": ["US", "Canada", "UK"]
+      },
+      {
+        "name": "NEDA (National Eating Disorders Association)",
+        "description": "Support for eating disorders",
+        "url": "https://www.nationaleatingdisorders.org",
+        "type": "web_phone",
+        "countries": ["US"]
+      }
+    ],
+    "action": "show_resources_queue_for_review",
+    "notify_moderation": true,
+    "store_flag": true,
+    "user_message": "We see you're struggling. These resources can help with self-harm recovery."
+  },
+  "suicidal_ideation": {
+    "level": "high",
+    "description": "Passive suicidal thoughts without immediate intent",
+    "keywords": [
+      "i think about suicide",
+      "suicidal thoughts",
+      "suicidal ideation",
+      "sometimes i want to die",
+      "i don't want to be alive",
+      "wish i wasn't here",
+      "wish i was dead",
+      "want to disappear",
+      "life isn't worth living",
+      "no point in living",
+      "ready to give up",
+      "can't take it anymore",
+      "drowning in despair",
+      "completely hopeless",
+      "will never get better"
+    ],
+    "resources": [
+      {
+        "name": "988 Suicide & Crisis Lifeline",
+        "description": "Call or text 988 (US)",
+        "url": "https://988lifeline.org",
+        "type": "phone_text_chat",
+        "countries": ["US"]
+      },
+      {
+        "name": "Crisis Text Line",
+        "description": "Text HOME to 741741",
+        "url": "https://www.crisistextline.org",
+        "type": "text",
+        "countries": ["US", "Canada", "UK"]
+      },
+      {
+        "name": "NAMI (National Alliance on Mental Illness)",
+        "description": "Mental health resources and support",
+        "url": "https://www.nami.org",
+        "type": "web",
+        "countries": ["US"]
+      }
+    ],
+    "action": "show_resources_queue_for_review",
+    "notify_moderation": true,
+    "store_flag": true,
+    "user_message": "You're dealing with thoughts about death. Professional help can make a real difference."
+  },
+  "serious_mental_health": {
+    "level": "medium",
+    "description": "Serious mental health crises (panic, acute anxiety, severe depression)",
+    "keywords": [
+      "panic attack",
+      "anxiety attack",
+      "panic disorder",
+      "having a panic attack",
+      "can't breathe",
+      "hyperventilating",
+      "heart racing",
+      "chest pain",
+      "severe depression",
+      "major depression",
+      "depressive episode",
+      "severe anxiety",
+      "severe panic",
+      "breakdown",
+      "nervous breakdown",
+      "acute crisis",
+      "emergency mental health",
+      "mental health crisis"
+    ],
+    "resources": [
+      {
+        "name": "988 Suicide & Crisis Lifeline",
+        "description": "Call or text 988 (US) - Also helps with other crises",
+        "url": "https://988lifeline.org",
+        "type": "phone_text_chat",
+        "countries": ["US"]
+      },
+      {
+        "name": "NAMI Helpline",
+        "description": "Mental health crisis support",
+        "url": "https://www.nami.org/help",
+        "type": "phone_email",
+        "countries": ["US"]
+      },
+      {
+        "name": "Go to your nearest Emergency Room",
+        "description": "If you're in acute crisis, call 911 or go to ER",
+        "url": "https://www.samhsa.gov/find-help/national-helpline",
+        "type": "emergency",
+        "countries": ["US"]
+      }
+    ],
+    "action": "suggest_resources_queue_for_review",
+    "notify_moderation": true,
+    "store_flag": false,
+    "user_message": "You're experiencing a mental health crisis. Professional support is available 24/7."
+  },
+  "substance_abuse": {
+    "level": "medium",
+    "description": "Substance abuse, addiction, or drug-related crises",
+    "keywords": [
+      "addiction",
+      "addicted",
+      "drug abuse",
+      "alcohol abuse",
+      "substance abuse",
+      "overdose",
+      "overdosing",
+      "i'm high",
+      "i'm drunk",
+      "using drugs",
+      "shooting up",
+      "heroin",
+      "cocaine",
+      "meth",
+      "fentanyl",
+      "alcohol dependency",
+      "drinking problem",
+      "can't stop using",
+      "substance problem"
+    ],
+    "resources": [
+      {
+        "name": "SAMHSA National Helpline",
+        "description": "Free, confidential, 24/7 substance abuse helpline",
+        "url": "https://www.samhsa.gov/find-help/national-helpline",
+        "type": "phone",
+        "countries": ["US"]
+      },
+      {
+        "name": "Narcotics Anonymous",
+        "description": "Support for drug addiction recovery",
+        "url": "https://www.na.org",
+        "type": "web_meetings",
+        "countries": ["Global"]
+      },
+      {
+        "name": "Alcoholics Anonymous",
+        "description": "Support for alcohol addiction recovery",
+        "url": "https://www.aa.org",
+        "type": "web_meetings",
+        "countries": ["Global"]
+      }
+    ],
+    "action": "suggest_resources_queue_for_review",
+    "notify_moderation": false,
+    "store_flag": false,
+    "user_message": "Recovery from substance abuse is possible. These resources can help you get started."
+  },
+  "abuse_violence": {
+    "level": "high",
+    "description": "Domestic abuse, violence, or exploitation",
+    "keywords": [
+      "domestic violence",
+      "domestic abuse",
+      "abusive partner",
+      "beating me",
+      "hit me",
+      "i'm being abused",
+      "sexual assault",
+      "sexual abuse",
+      "raped",
+      "trafficking",
+      "human trafficking",
+      "coercive control",
+      "stalking",
+      "being stalked",
+      "threatening partner",
+      "threatened me",
+      "violent partner"
+    ],
+    "resources": [
+      {
+        "name": "National Domestic Violence Hotline",
+        "description": "Call 1-800-799-7233 or text START to 88788",
+        "url": "https://www.thehotline.org",
+        "type": "phone_text_chat",
+        "countries": ["US"]
+      },
+      {
+        "name": "RAINN (Rape, Abuse & Incest National Network)",
+        "description": "Support for sexual assault survivors",
+        "url": "https://www.rainn.org",
+        "type": "phone_chat",
+        "countries": ["US"]
+      },
+      {
+        "name": "National Human Trafficking Hotline",
+        "description": "Report trafficking and get help",
+        "url": "https://humantraffickinghotline.org",
+        "type": "phone_text",
+        "countries": ["US"]
+      }
+    ],
+    "action": "show_resources_queue_for_review",
+    "notify_moderation": true,
+    "store_flag": true,
+    "user_message": "Abuse is never okay. These resources can help you reach safety."
+  },
+  "bullying": {
+    "level": "medium",
+    "description": "Bullying, harassment, or cyberbullying",
+    "keywords": [
+      "being bullied",
+      "bullying",
+      "cyberbullying",
+      "cyber bullying",
+      "harassed online",
+      "hate messages",
+      "people are mean to me",
+      "everyone hates me",
+      "excluded",
+      "ostracized",
+      "mocked",
+      "ridiculed",
+      "made fun of",
+      "harassment online",
+      "online abuse"
+    ],
+    "resources": [
+      {
+        "name": "Crisis Text Line",
+        "description": "Text HOME to 741741",
+        "url": "https://www.crisistextline.org",
+        "type": "text",
+        "countries": ["US", "Canada", "UK"]
+      },
+      {
+        "name": "StopBullying.gov",
+        "description": "Information and resources for bullying",
+        "url": "https://www.stopbullying.gov",
+        "type": "web",
+        "countries": ["US"]
+      },
+      {
+        "name": "Cybertipline",
+        "description": "Report cyberbullying and online harassment",
+        "url": "https://cybertipline.org",
+        "type": "web",
+        "countries": ["US"]
+      }
+    ],
+    "action": "suggest_resources",
+    "notify_moderation": false,
+    "store_flag": false,
+    "user_message": "Bullying is hurtful and wrong. You deserve support and kindness."
+  },
+  "hopelessness": {
+    "level": "medium",
+    "description": "General hopelessness, despair, or loss of meaning",
+    "keywords": [
+      "hopeless",
+      "hopelessness",
+      "nothing matters",
+      "pointless",
+      "meaningless",
+      "empty inside",
+      "lost all hope",
+      "no future",
+      "can't see a way forward",
+      "stuck forever",
+      "will never change",
+      "permanent damage",
+      "irreversible",
+      "why try",
+      "what's the point",
+      "this is permanent",
+      "never get better"
+    ],
+    "resources": [
+      {
+        "name": "Crisis Text Line",
+        "description": "Text HOME to 741741 for immediate support",
+        "url": "https://www.crisistextline.org",
+        "type": "text",
+        "countries": ["US", "Canada", "UK"]
+      },
+      {
+        "name": "NAMI (National Alliance on Mental Illness)",
+        "description": "Mental health resources and recovery stories",
+        "url": "https://www.nami.org",
+        "type": "web",
+        "countries": ["US"]
+      },
+      {
+        "name": "Psychology Today Therapist Finder",
+        "description": "Find a therapist or counselor",
+        "url": "https://www.psychologytoday.com",
+        "type": "web",
+        "countries": ["US"]
+      }
+    ],
+    "action": "suggest_resources",
+    "notify_moderation": false,
+    "store_flag": false,
+    "user_message": "Hopelessness is a symptom of depression. Treatment works, and recovery is possible."
+  }
+}

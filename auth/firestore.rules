@@ -1,0 +1,43 @@
+// Firestore rules for WhisperBox — anonymity-first
+// Apply or merge these rules with your production rules and test thoroughly in staging.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection — minimal fields only. Allow create/update only by the user.
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(["uid","createdAt","anonymousHandle","emailVerified"]) 
+        && request.resource.data.uid == userId
+        && request.resource.data.anonymousHandle is string
+        && request.resource.data.createdAt == request.resource.data.createdAt; // serverTimestamp expected
+
+      allow read: if false; // user documents are not readable by other clients by default
+      allow update: if request.auth != null && request.auth.uid == userId
+        && (request.resource.data.keys().hasOnly(["uid","anonymousHandle","emailVerified"]) || request.resource.data.keys().hasAll(["uid","anonymousHandle","emailVerified"]))
+        && request.resource.data.uid == userId;
+      allow delete: if false; // prevent deletes from client; use backend admin if necessary
+    }
+
+    // Posts collection — allow authenticated users to create posts. Prevent PII in posts.
+    match /posts/{postId} {
+      allow create: if request.auth != null
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.keys().hasAll(["authorUid","anonymousHandle","content","createdAt"]) 
+        && !(request.resource.data.keys().hasAny(["email","phone","fullName","username","profileUrl"]))
+        && request.resource.data.content is string
+        && request.resource.data.anonymousHandle is string;
+
+      // Reading posts is allowed to all authenticated users or public, depending on app policy
+      allow read: if true;
+
+      allow update, delete: if false; // writes/edits should be done via secure functions if necessary
+    }
+
+    // Basic public resources
+    match /public/{doc=**} {
+      allow read: if true;
+    }
+  }
+}

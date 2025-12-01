@@ -1,0 +1,33 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      ".env",
+      ".env.local",
+      "serviceAccountKey.json",
+      "migrate_mysql_to_firestore.js",
+      "package.json",
+      ".gitignore",
+      "README_DEPLOYMENT.md",
+      "*.md",
+      "firestore.rules",
+      "storage.rules"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

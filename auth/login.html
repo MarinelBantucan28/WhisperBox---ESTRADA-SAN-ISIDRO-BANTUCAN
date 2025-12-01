@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WhisperBox — Login</title>
+  <style>
+    :root{--brand:#2b6ef6;--muted:#6b7280;--bg:#f7f9fc}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#0f172a}
+    .container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{width:100%;max-width:980px;border-radius:12px;overflow:hidden;display:flex;box-shadow:0 6px 30px rgba(16,24,40,0.08);background:white}
+    .left{flex:1;padding:40px 36px;background:linear-gradient(180deg,#fff,#f3f6ff)}
+    .right{flex:1;padding:36px;display:flex;align-items:center;justify-content:center}
+    .logo{display:flex;align-items:center;gap:12px}
+    .lock{width:52px;height:52px;background:var(--brand);border-radius:10px;display:inline-grid;place-items:center;color:white}
+    .brand{font-weight:700;font-size:20px}
+    .tag{color:var(--muted);font-size:13px}
+    h2{margin:18px 0 6px;font-size:20px}
+    form{width:100%;max-width:420px}
+    .field{margin-bottom:14px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+    input[type="email"],input[type="password"]{width:100%;padding:12px 44px 12px 12px;border:1px solid #e6eef8;border-radius:8px;font-size:15px}
+    .input-wrap{position:relative}
+    .toggle-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:0;padding:6px;cursor:pointer}
+    .small{font-size:13px;color:var(--muted)}
+    .actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+    .btn{background:var(--brand);color:white;padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+    .btn-secondary{background:transparent;color:var(--brand);border:1px solid rgba(43,110,246,0.12)}
+    .google{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid #e6eef8;cursor:pointer}
+    .error{color:#b91c1c;margin-top:8px}
+    .spinner{width:20px;height:20px;border-radius:50%;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--brand);animation:spin .9s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-width:800px){.card{flex-direction:column}.left{order:2}.right{order:1}}
+  </style>
+  <!-- Firebase SDKs (allowed external SDK only) -->
+</head>
+<body>
+  <div class="container">
+    <div class="card" role="main" aria-labelledby="login-title">
+      <div class="left">
+        <div class="logo" aria-hidden="false">
+          <div class="lock" aria-hidden="true"> <!-- inline lock SVG -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 10V8a6 6 0 1112 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand">WhisperBox</div>
+            <div class="tag">Safe. Anonymous. Expressive.</div>
+          </div>
+        </div>
+        <h2 id="login-title">Welcome back</h2>
+        <p class="small">Sign in to continue to WhisperBox. Your posts remain anonymous unless you choose otherwise.</p>
+      </div>
+      <div class="right">
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required aria-required="true" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input id="password" name="password" type="password" autocomplete="current-password" required aria-required="true" />
+              <button type="button" class="toggle-btn" id="togglePassword" aria-label="Show password" title="Show password">
+                <!-- eye icon (inline) -->
+                <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="actions">
+            <label><input id="remember" type="checkbox" /> <span class="small">Remember me</span></label>
+            <a class="small" href="#" id="forgot-password">Forgot?</a>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+            <button id="loginBtn" class="btn" type="submit"><span id="loginLabel">Sign in</span></button>
+            <button id="googleBtn" type="button" class="google" aria-label="Sign in with Google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.8 0 6.9 1.6 9.1 3.1l6.7-6.7C34.4 2.5 29.6 0.5 24 0.5 14.7 0.5 6.9 5.5 2.6 13.4l7.8 6.1C12.5 14 18 9.5 24 9.5z"></path></svg> Sign in with Google</button>
+          </div>
+          <p class="error" id="errorMsg" role="status" aria-live="polite"></p>
+          <p class="small" style="margin-top:12px">No account? <a href="signup.html">Create one</a></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
+
+    // TODO: Replace with production Firebase config (keep secrets in environment, not in repo)
+    const firebaseConfig = {
+      apiKey: "REPLACE_WITH_PROD_APIKEY",
+      authDomain: "REPLACE_WITH_PROD_AUTHDOMAIN",
+      projectId: "REPLACE_WITH_PROD_PROJECTID",
+      storageBucket: "REPLACE_WITH_PROD_BUCKET",
+      messagingSenderId: "REPLACE_WITH_PROD_SENDERID",
+      appId: "REPLACE_WITH_PROD_APPID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginLabel = document.getElementById('loginLabel');
+    const errorMsg = document.getElementById('errorMsg');
+    const remember = document.getElementById('remember');
+    const togglePassword = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const googleBtn = document.getElementById('googleBtn');
+
+    let showing = false;
+    togglePassword.addEventListener('click', (e)=>{
+      e.preventDefault();
+      showing = !showing;
+      passwordInput.type = showing ? 'text' : 'password';
+      togglePassword.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+      if(showing){
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.94 10.94 0 0112 19c-6 0-10-7-10-7s1.98-3.36 5.28-5.37" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 1l22 22" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>';
+      } else {
+        eyeIcon.innerHTML = '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="12" r="3" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></circle>';
+      }
+      passwordInput.focus({preventScroll:true});
+    });
+
+    function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+    function setLoading(on){ if(on){ loginLabel.innerHTML = '<span class="spinner" aria-hidden="true"></span> Signing in'; loginBtn.disabled=true;} else { loginLabel.textContent='Sign in'; loginBtn.disabled=false; } }
+
+    loginForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      errorMsg.textContent='';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if(!email || !password){ errorMsg.textContent='All fields are required'; return; }
+      if(!isValidEmail(email)){ errorMsg.textContent='Enter a valid email address'; return; }
+
+      try{
+        setLoading(true);
+        await setPersistence(auth, remember.checked ? browserLocalPersistence : browserSessionPersistence);
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+        if(!user.emailVerified){
+          errorMsg.innerHTML = 'Email not verified. <button id="resend" class="btn btn-secondary" style="margin-left:8px">Resend verification</button>';
+          document.getElementById('resend').addEventListener('click', async ()=>{
+            setLoading(true);
+            try{ await sendEmailVerification(user); errorMsg.textContent='Verification email sent. Check your inbox.' }catch(err){ errorMsg.textContent='Failed to send verification email.' }
+            setLoading(false);
+          });
+          setLoading(false);
+          return;
+        }
+        window.location.href = '/index.html';
+      }catch(err){
+        console.error(err);
+        setLoading(false);
+        const code = err.code || err.message || '';
+        if(code.includes('user-not-found')||code.includes('wrong-password')) errorMsg.textContent='Invalid email or password.';
+        else if(code.includes('network')) errorMsg.textContent='Network error. Please try again.';
+        else errorMsg.textContent='Sign in failed. Please try again.';
+      }
+    });
+
+    googleBtn.addEventListener('click', async ()=>{
+      errorMsg.textContent='';
+      try{
+        setLoading(true);
+        await setPersistence(auth, remember.checked ? browserLocalPersistence : browserSessionPersistence);
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        window.location.href = '/index.html';
+      }catch(err){
+        console.error(err);
+        setLoading(false);
+        errorMsg.textContent='Google sign-in failed. Please try again.';
+      }
+    });
+
+    // Forgot password handler (prompts for email and sends reset link)
+    const forgotLink = document.getElementById('forgot-password');
+    if (forgotLink) {
+      forgotLink.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        errorMsg.textContent = '';
+        const email = prompt('Please enter your account email to receive a password reset link:');
+        if (!email) return;
+        if (!isValidEmail(email)) { errorMsg.textContent = 'Please enter a valid email address.'; return; }
+        try {
+          setLoading(true);
+          await sendPasswordResetEmail(auth, email);
+          errorMsg.style.color = 'green';
+          errorMsg.textContent = 'Password reset email sent. Check your inbox.';
+        } catch (err) {
+          console.error('Password reset error:', err);
+          errorMsg.style.color = '#b91c1c';
+          errorMsg.textContent = 'Failed to send password reset email.';
+        } finally {
+          setLoading(false);
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>
