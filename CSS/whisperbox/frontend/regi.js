@@ -11,6 +11,26 @@ if (window.location.protocol === 'file:') {
 // Use the global API_BASE_URL
 const API_BASE_URL = window.API_BASE_URL;
 
+// Attempt to import Firebase auth if available. Falls back to PHP backend API.
+let firebaseAvailable = false;
+let fb = null;
+async function tryInitFirebase() {
+    try {
+        // Relative path to project firebase.js (adjusted for this file location)
+        fb = await import('../../../../whisperbox-firebase/firebase.js');
+        if (fb && fb.createUserWithEmailAndPassword) {
+            firebaseAvailable = true;
+            console.log('regi.js: Firebase detected and will be used for auth flows');
+        }
+    } catch (err) {
+        firebaseAvailable = false;
+        console.warn('regi.js: Firebase not available; falling back to server-side auth API');
+    }
+}
+
+// Start initialize in background (it's fine if it finishes after page load)
+tryInitFirebase();
+
 // DOM Elements
 const guestButton = document.getElementById('guest-button');
 const registerButton = document.getElementById('register-button');
@@ -217,39 +237,65 @@ document.getElementById('registration-form').addEventListener('submit', async (e
     submitBtn.textContent = 'Creating Account...';
     
     try {
-        const formData = new FormData();
-        formData.append('action', 'register');
-        formData.append('username', username);
-        formData.append('email', email);
-        formData.append('password', password);
-        
-        const response = await fetch(`${API_BASE_URL}/auth.php`, {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            showMessage('Account created successfully! Logging you in...', 'success');
-            
-            // Store session info
-            sessionStorage.setItem('user_id', result.user_id);
+        if (firebaseAvailable && fb) {
+            // Use Firebase Auth for registration
+            const { auth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = fb;
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            // set display name to username
+            try {
+                await updateProfile(userCred.user, { displayName: username });
+            } catch (uErr) {
+                console.warn('regi.js: updateProfile failed', uErr);
+            }
+            try {
+                await sendEmailVerification(userCred.user);
+            } catch (vErr) {
+                console.warn('regi.js: sendEmailVerification failed', vErr);
+            }
+
+            showMessage('Account created successfully! Verification email sent. Logging you in...', 'success');
+            sessionStorage.setItem('user_id', userCred.user.uid);
             sessionStorage.setItem('username', username);
             sessionStorage.setItem('email', email);
             sessionStorage.setItem('user_authenticated', 'true');
-            
-            // Clear form
             e.target.reset();
-            
-            // Redirect after brief delay
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
+            setTimeout(() => { window.location.href = '../../../../../whisperbox-firebase/index.html'; }, 1500);
         } else {
-            showMessage(`Registration failed: ${result.message}`, 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            // Fallback to server-side PHP API
+            const formData = new FormData();
+            formData.append('action', 'register');
+            formData.append('username', username);
+            formData.append('email', email);
+            formData.append('password', password);
+
+            const response = await fetch(`${API_BASE_URL}/auth.php`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showMessage('Account created successfully! Logging you in...', 'success');
+
+                // Store session info
+                sessionStorage.setItem('user_id', result.user_id);
+                sessionStorage.setItem('username', username);
+                sessionStorage.setItem('email', email);
+                sessionStorage.setItem('user_authenticated', 'true');
+
+                // Clear form
+                e.target.reset();
+
+                // Redirect after brief delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                showMessage(`Registration failed: ${result.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         }
     } catch (error) {
         console.error('Registration error:', error);
@@ -279,47 +325,62 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     submitBtn.textContent = 'Logging In...';
     
     try {
-        const formData = new FormData();
-        formData.append('action', 'login');
-        formData.append('email', email);
-        formData.append('password', password);
-        
-        const response = await fetch(`${API_BASE_URL}/auth.php`, {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.status === 'success' && result.user) {
+        if (firebaseAvailable && fb) {
+            // Use Firebase Auth for login
+            const { auth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } = fb;
+            await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+            const userCred = await signInWithEmailAndPassword(auth, email, password);
             showMessage('Login successful! Redirecting...', 'success');
-            
-            // Store session info
-            sessionStorage.setItem('user_id', result.user.id);
-            sessionStorage.setItem('username', result.user.username);
-            sessionStorage.setItem('email', result.user.email);
-            sessionStorage.setItem('display_name', result.user.display_name);
+            sessionStorage.setItem('user_id', userCred.user.uid);
+            sessionStorage.setItem('username', userCred.user.displayName || userCred.user.email);
+            sessionStorage.setItem('email', userCred.user.email);
             sessionStorage.setItem('user_authenticated', 'true');
-            
-            // Store remember me preference
-            if (rememberMe) {
-                localStorage.setItem('remember_user', JSON.stringify({
-                    email: result.user.email,
-                    username: result.user.username
-                }));
-            }
-            
-            // Clear form
             e.target.reset();
-            
-            // Redirect after brief delay
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
+            setTimeout(() => { window.location.href = '../../../../../whisperbox-firebase/index.html'; }, 1500);
         } else {
-            showMessage(`Login failed: ${result.message}`, 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            // Fallback to server-side API
+            const formData = new FormData();
+            formData.append('action', 'login');
+            formData.append('email', email);
+            formData.append('password', password);
+
+            const response = await fetch(`${API_BASE_URL}/auth.php`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success' && result.user) {
+                showMessage('Login successful! Redirecting...', 'success');
+
+                // Store session info
+                sessionStorage.setItem('user_id', result.user.id);
+                sessionStorage.setItem('username', result.user.username);
+                sessionStorage.setItem('email', result.user.email);
+                sessionStorage.setItem('display_name', result.user.display_name);
+                sessionStorage.setItem('user_authenticated', 'true');
+
+                // Store remember me preference
+                if (rememberMe) {
+                    localStorage.setItem('remember_user', JSON.stringify({
+                        email: result.user.email,
+                        username: result.user.username
+                    }));
+                }
+
+                // Clear form
+                e.target.reset();
+
+                // Redirect after brief delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                showMessage(`Login failed: ${result.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         }
     } catch (error) {
         console.error('Login error:', error);

@@ -12,7 +12,8 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="img/logo.png" alt="WhisperBox Logo">
+                <!-- Use shared auth logo so it's consistent across pages -->
+                <img src="../../../../whisperbox-firebase/auth/img/BOX_logo.svg" alt="WhisperBox Logo" style="height:64px; width:auto;">
             </div>
             <h1>WhisperBox</h1>
             <p>Share What You Can't Say Out Loud</p>
@@ -141,14 +142,20 @@
                     <small style="color: #718096; font-size: 0.8rem;">We will never display your email publicly</small>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group password-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" class="form-input" placeholder="Create a secure password" required>
+                    <div class="password-field">
+                        <input type="password" id="password" class="form-input" placeholder="Create a secure password" required>
+                        <button type="button" class="icon-button" id="toggle-reg-password" aria-label="Show password">👁️</button>
+                    </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group password-group">
                     <label for="confirm-password" class="form-label">Confirm Password</label>
-                    <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password" required>
+                    <div class="password-field">
+                        <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password" required>
+                        <button type="button" class="icon-button" id="toggle-reg-confirm" aria-label="Show confirm password">👁️</button>
+                    </div>
                 </div>
                 
                 <div class="checkbox-group">
@@ -206,6 +213,25 @@
         <p>WhisperBox &copy; 2025 - A Safe Space for Anonymous Expression</p>
     </div>
 
-    <script src="regi.js"></script>
+        <script>
+            // Simple password toggle for registration modal
+            document.addEventListener('DOMContentLoaded', () => {
+                function setupToggle(buttonId, inputId) {
+                    const btn = document.getElementById(buttonId);
+                    const input = document.getElementById(inputId);
+                    if (!btn || !input) return;
+                    btn.addEventListener('click', () => {
+                        const isPwd = input.type === 'password';
+                        input.type = isPwd ? 'text' : 'password';
+                        btn.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
+                        btn.textContent = isPwd ? '🙈' : '👁️';
+                    });
+                }
+
+                setupToggle('toggle-reg-password', 'password');
+                setupToggle('toggle-reg-confirm', 'confirm-password');
+            });
+        </script>
+        <script type="module" src="regi.js"></script>
 </body>
 </html>
